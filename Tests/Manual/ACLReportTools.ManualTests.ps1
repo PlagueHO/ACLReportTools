@@ -141,7 +141,8 @@ Function Test-ACLReportToolsShares {
 ##########################################################################################################################################
 Function Test-ACLReportToolsLoadModule {
 	Get-Module ACLReportTools | Remove-Module
-	Import-Module "$PSScriptRoot\ACLReportTools"
+    [String] $moduleRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $Script:MyInvocation.MyCommand.Path))
+	Import-Module (Join-Path -Path $moduleRoot -ChildPath 'ACLReportTools.psm1')
 } # Function Test-ACLReportLoadModule
 ##########################################################################################################################################
 Test-ACLReportToolsCreateShares
