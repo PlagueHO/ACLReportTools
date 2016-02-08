@@ -54,7 +54,8 @@ $Script:Html_DifferenceLine = Data {
 ##########################################################################################################################################
 # Main CmdLets
 ##########################################################################################################################################
-Function New-ACLShareReport {
+
+
 <#
 .SYNOPSIS
 	Creates a list of Share, File and Folder ACLs for the specified shares/computers.
@@ -87,6 +88,7 @@ Function New-ACLShareReport {
 	New-ACLShareReport -ComputerName CLIENT01 -Exclude SysVol
 	Creates a report of all the Share and file/folder ACLs on the CLIENT01 machine that are in shares not named SysVol.
 #>
+Function New-ACLShareReport {
     [CmdLetBinding()]
     Param(
         [Parameter(
@@ -110,10 +112,8 @@ Function New-ACLShareReport {
         return $acls
     } # End
 } # Function New-ACLShareReport
-##########################################################################################################################################
 
-##########################################################################################################################################
-Function New-ACLPathFileReport {
+
 <#
 .SYNOPSIS
 	Creates a list of File and Folder ACLs for the provided path(s).
@@ -132,6 +132,7 @@ Function New-ACLPathFileReport {
 	New-ACLPathFileReport -Path e:\public
 	Creates a report of all the file/folder ACLs in the e:\public folder on this machine.
 #>
+Function New-ACLPathFileReport {
     [CmdLetBinding()]
     Param(
         [Parameter(
@@ -151,10 +152,8 @@ Function New-ACLPathFileReport {
         return $acls
     } # End
 } # Function New-ACLPathFileReport
-##########################################################################################################################################
 
-##########################################################################################################################################
-function Export-ACLReport {
+
 <#
 .SYNOPSIS
 	Export an ACL Report as a file.
@@ -189,6 +188,7 @@ function Export-ACLReport {
 	New-ACLShareReport -ComputerName SERVER01 | Export-ACLReport -Path C:\ACLReports\server01.acl -Force
 	Saves the file ACLs for all shares on the compuer SERVER01 to the file C:\ACLReports\server01.acl. If the file exists it will be overwritten.
 #>    
+function Export-ACLReport {
     [CmdLetBinding()]
     Param(
         [Parameter(Mandatory=$true)]
@@ -217,10 +217,8 @@ function Export-ACLReport {
 		$InputObjectNew | Export-ACLPermission @PSBoundParameters
 	}
 } # Function Export-ACLReport
-##########################################################################################################################################
 
-##########################################################################################################################################
-function Export-ACLDiffReport {
+
 <#
 .SYNOPSIS
 	Export an ACL Permission Diff Report as a file.
@@ -244,6 +242,7 @@ function Export-ACLDiffReport {
 	This will perform a comparison of the current share ACL report from computer CLIENT01 with the stored share ACL report in file c:\ACLReports\CLIENT01_2014_11_14.acl and then export the report file
 	to $HOME\Documents\Compare.acr
 #>    
+function Export-ACLDiffReport {
     [CmdLetBinding()]
     Param(
         [Parameter(Mandatory=$true)]
@@ -272,10 +271,8 @@ function Export-ACLDiffReport {
 		$InputObjectNew | Export-ACLPermissionDiff @PSBoundParameters
 	}
 } # Function Export-ACLDiffReport
-##########################################################################################################################################
 
-##########################################################################################################################################
-function Import-ACLReport {
+
 <#
 .SYNOPSIS
 	Import the ACL Report that is in a file.
@@ -292,6 +289,7 @@ function Import-ACLReport {
 	Import-ACLReport -Path C:\ACLReports\server01.acl
 	Imports the ACL Share Report from the file C:\ACLReports\server01.acl and puts it into the pipeline
 #>    
+function Import-ACLReport {
     [CmdLetBinding()]
 #	[OutputType([ACLReportTools.Permission])]
     Param(
@@ -303,10 +301,8 @@ function Import-ACLReport {
     Import-ACLPermission @PSBoundParameters
 
 } # Function Import-ACLReport
-##########################################################################################################################################
 
-##########################################################################################################################################
-function Import-ACLDiffReport {
+
 <#
 .SYNOPSIS
 	Import the ACL Difference Report that is in a file.
@@ -323,6 +319,7 @@ function Import-ACLDiffReport {
 	Import-ACLDiffReport -Path C:\ACLReports\server01.acr
 	Imports the ACL Share Report from the file C:\ACLReports\server01Permission and puts it into the pipeline
 #>    
+function Import-ACLDiffReport {
     [CmdLetBinding()]
 #	[OutputType([ACLReportTools.PermissionDiff])]
     Param(
@@ -334,10 +331,8 @@ function Import-ACLDiffReport {
     Import-ACLPermissionDiff @PSBoundParameters
 
 } # Function Import-ACLDiffReport
-##########################################################################################################################################
 
-##########################################################################################################################################
-Function Compare-ACLReports {
+
 <#
 .SYNOPSIS
 	Compares two ACL reports and produces an ACL Difference report.
@@ -394,6 +389,7 @@ Function Compare-ACLReports {
 	 Compare-ACLReports -Baseline (Import-ACLReports -Path c:\ACLReports\CLIENT01_2014_11_14.acl) -With (Import-ACLReports -Path c:\ACLReports\CLIENT01_2014_06_01.acl)
 	 This will perform a comparison of the share ACL report in file c:\ACLReports\CLIENT01_2014_06_01.acl with the stored share ACL report in file c:\ACLReports\CLIENT01_2014_11_14.acl
 #>
+Function Compare-ACLReports {
     [CmdLetBinding()]
     Param(
         [Parameter(
@@ -811,13 +807,12 @@ Function Compare-ACLReports {
         $Comparison
     } # End
 } # Function Compare-ACLReports
-##########################################################################################################################################
 
 
 ##########################################################################################################################################
 # Support CmdLets
 ##########################################################################################################################################
-Function Get-ACLShare {
+
 <#
 .SYNOPSIS
 	Gets a list of the Shares on a specified computer(s) with specified inclusions or exclusions.
@@ -856,6 +851,7 @@ Function Get-ACLShare {
 	 Get-ACLShare -ComputerName CLIENT01,CLIENT02 -Exclude SysVol
 	 Returns a list of shares that are set up on the CLIENT01 and CLIENT02 machines that are not called SysVol.
 #>
+Function Get-ACLShare {
     [CmdLetBinding()]
     Param(
         [Parameter(
@@ -902,10 +898,8 @@ Function Get-ACLShare {
         Return $SelectedShares
     } # End
 } # Function Get-ACLShare
-##########################################################################################################################################
 
-##########################################################################################################################################
-function Get-ACLShareACL {
+
 <#
 .SYNOPSIS
 	Gets the ACLs for a specified Share.
@@ -932,6 +926,7 @@ function Get-ACLShareACL {
 	Get-ACLShareACL -ComputerName CLIENT01 -ShareName MyShre
 	Returns the share ACLs for the MyShare Share on the CLIENT01 machine.
 #>
+function Get-ACLShareACL {
     [CmdLetBinding()]
     Param(
         [Parameter(
@@ -978,10 +973,8 @@ function Get-ACLShareACL {
         Return $share_acls
     } # End
 } # function Get-ACLShareACL
-##########################################################################################################################################
 
-##########################################################################################################################################
-function Get-ACLShareFileACL {
+
 <#
 .SYNOPSIS
 	Gets all the non-inherited file/folder ACLs definited within a specified Share. A recursive search is optional.
@@ -1006,6 +999,7 @@ function Get-ACLShareFileACL {
 	Get-ACLShareFileACL -ComputerName CLIENT01 -ShareName MyShare -Recurse
 	Returns the file/folder ACLs for all files/folders recursively inside the MyShare Share on the CLIENT01 machine.
 #>    
+function Get-ACLShareFileACL {
     [CmdLetBinding()]
     Param(
         [Parameter(
@@ -1074,10 +1068,8 @@ function Get-ACLShareFileACL {
         Return $file_acls
     } # End
 } # Function Get-ACLShareFileACL
-##########################################################################################################################################
 
-##########################################################################################################################################
-function Get-ACLPathFileACL {
+
 <#
 .SYNOPSIS
 	Gets all the non-inherited file/folder ACLs defined within a specified Path. A recursive search is optional.
@@ -1099,6 +1091,7 @@ function Get-ACLPathFileACL {
 	Get-ACLPathFileACL -Path C:\Users -Recurse
 	Returns the file/folder ACLs for all files/folders recursively inside the C:\Users folder.
 #>    
+function Get-ACLPathFileACL {
     [CmdLetBinding()]
     Param(
         [Parameter(Mandatory=$true)]
@@ -1148,10 +1141,8 @@ function Get-ACLPathFileACL {
     } # If
     return $file_acls
 } # Function Get-ACLPathFileACL
-##########################################################################################################################################
 
-##########################################################################################################################################
-function Export-ACLPermission {
+
 <#
 .SYNOPSIS
 	Export the ACL Permissions objects that are provided as a file.
@@ -1183,6 +1174,7 @@ function Export-ACLPermission {
 
 	Saves the file ACLs for all shares on the compuer SERVER01 to the file C:\ACLReports\server01.acl.
 #>    
+function Export-ACLPermission {
     [CmdLetBinding()]
     Param(
         [Parameter(Mandatory=$true)]
@@ -1219,10 +1211,8 @@ function Export-ACLPermission {
         }
     } # End
 } # Function Export-ACLPermission
-##########################################################################################################################################
 
-##########################################################################################################################################
-function Export-ACLPermissionDiff {
+
 <#
 .SYNOPSIS
 	Export the ACL Difference Objects that are provided as a file.
@@ -1244,6 +1234,7 @@ function Export-ACLPermissionDiff {
 
 	Saves the ACL Difference objects in the $DiffReport variable to the file C:\ACLReports\server01.acr.  If the file exists it will be overwritten if the Force switch is set.
 #>    
+function Export-ACLPermissionDiff {
     [CmdLetBinding()]
     Param(
         [Parameter(Mandatory=$true)]
@@ -1280,10 +1271,8 @@ function Export-ACLPermissionDiff {
         }
     } # End
 } # Function Export-ACLPermissionDiff
-##########################################################################################################################################
 
-##########################################################################################################################################
-function Import-ACLPermission {
+
 <#
 .SYNOPSIS
 	Import the a File containing serialized ACL Permission objects that are in a file back into the pipeline.
@@ -1298,6 +1287,7 @@ function Import-ACLPermission {
 	Import-ACLPermission -Path C:\ACLReports\server01.acl
 	Loads the ACLs in the file C:\ACLReports\server01.acl.
 #>    
+function Import-ACLPermission {
     [CmdLetBinding()]
 #	[OutputType([ACLReportTools.Permission])]
     Param(
@@ -1317,10 +1307,8 @@ function Import-ACLPermission {
         Write-Error "Unable to import the ACL file $Path."
     } # Try
 } # Function Import-ACLPermission
-##########################################################################################################################################
 
-##########################################################################################################################################
-function Import-ACLPermissionDiff {
+
 <#
 .SYNOPSIS
 	Import the a File containing serialized ACL Permission Diff objects that are in a file back into the pipeline.
@@ -1335,6 +1323,7 @@ function Import-ACLPermissionDiff {
 	Import-ACLPermissionDiff -Path C:\ACLReports\server01.acr
 	Loads the ACL Permission Diff objects in the file C:\ACLReports\server01.acr.
 #>    
+function Import-ACLPermissionDiff {
     [CmdLetBinding()]
 #	[OutputType([ACLReportTools.PermissionDiff])]
     Param(
@@ -1354,10 +1343,8 @@ function Import-ACLPermissionDiff {
         Write-Error "Unable to import the ACL file $Path."
     } # Try
 } # Function Import-ACLPermissionDiff
-##########################################################################################################################################
 
-##########################################################################################################################################
-function Export-ACLPermissionDiffHTML {
+
 <#
 .SYNOPSIS
 	Export the ACL Difference Objects that are provided as an HTML file.
@@ -1382,6 +1369,7 @@ function Export-ACLPermissionDiffHTML {
 
 	Performs a comparison using the Baseline file c:\ACLReports\Server01.acl and the shares on Server01 and outputs ACL Difference Report as an HTML file.
 #>    
+function Export-ACLPermissionDiffHTML {
     [CmdLetBinding()]
     Param(
         [Parameter(Mandatory=$true)]
@@ -1427,12 +1415,13 @@ function Export-ACLPermissionDiffHTML {
 		Add-Content -Path $Path -Value ( Create-HTMLReportFooter ) -Force 
     } # End
 } # Function Export-ACLPermissionDiffHTML
-##########################################################################################################################################
+
 
 ##########################################################################################################################################
 # Hidden Support CmdLets
 ##########################################################################################################################################
-function Initialize-Module {
+
+
 <#
 .SYNOPSIS
 	This function creates the a support module containing classes and enums via reflection. It also checks for and loads the
@@ -1441,6 +1430,7 @@ function Initialize-Module {
 .DESCRIPTION 
 	This function creates a .net dynamic module via reflection and adds classes and enums to it that are then used by other functions in this module.
 #>
+function Initialize-Module {
     [CmdLetBinding()]
     Param (
         [String]$ModuleName = 'ACLReportTools'
@@ -1514,10 +1504,8 @@ function Initialize-Module {
         $TypeBuilder.CreateType() | Out-Null
     } # If
 } # Function Initialize-Module
-##########################################################################################################################################
 
-##########################################################################################################################################
-function New-ShareObject {
+
 <#
 .SYNOPSIS
 	This function creates an ACLReportTools.Share object and populates it.
@@ -1525,6 +1513,7 @@ function New-ShareObject {
 .DESCRIPTION 
 	This function creates an ACLReportTools.Share object from the class definition in the dynamic module ACLREportsModule and assigns the function parameters to the field values of the object.
 #>
+function New-ShareObject {
     [CmdLetBinding()]
     Param (
         [Parameter(Mandatory=$true)]
@@ -1541,10 +1530,8 @@ function New-ShareObject {
     $share_object.Name = $ShareName
     return $share_object
 } # function New-ShareObject
-##########################################################################################################################################
 
-##########################################################################################################################################
-function New-PermissionObject {
+
 <#
 .SYNOPSIS
 	This function creates an ACLReportTools.Permission object and populates it.
@@ -1552,6 +1539,7 @@ function New-PermissionObject {
 .DESCRIPTION 
 	This function creates an ACLReportTools.Permission object from the class definition in the dynamic module ACLREportsModule and assigns the function parameters to the field values of the object.
 #>
+function New-PermissionObject {
     [CmdLetBinding()]
     Param (
         [Parameter(Mandatory=$true)]
@@ -1583,10 +1571,8 @@ function New-PermissionObject {
     $permission_object.Access = $Access
     return $permission_object
 } # function New-PermissionObject
-##########################################################################################################################################
 
-##########################################################################################################################################
-function New-PermissionDiffObject {
+
 <#
 .SYNOPSIS
 	This function creates an ACLReportTools.PermissionDiff object and populates it.
@@ -1594,6 +1580,7 @@ function New-PermissionDiffObject {
 .DESCRIPTION 
 	This function creates an ACLReportTools.PermissionDiff object from the class definition in the dynamic module ACLREportsModule and assigns the function parameters to the field values of the object.
 #>
+function New-PermissionDiffObject {
     [CmdLetBinding()]
     Param (
         [ACLReportTools.PermissionTypeEnum]$Type=([ACLReportTools.PermissionTypeEnum]::'Not Applicable'),
@@ -1622,15 +1609,14 @@ function New-PermissionDiffObject {
     $permissiondiff_object.Difference = $Difference
     return $permissiondiff_object
 } # function New-PermissionDiffObject
-##########################################################################################################################################
 
-##########################################################################################################################################
-function Convert-FileSystemAppliesToString {
+
 <#
 .SYNOPSIS
 
 .DESCRIPTION 
 #>
+function Convert-FileSystemAppliesToString {
     [CmdLetBinding()]
     Param(
         [Parameter(Mandatory=$true)]
@@ -1654,15 +1640,14 @@ function Convert-FileSystemAppliesToString {
     } # If
     return "Unknown"
 } # function Convert-FileSystemAppliesToString
-##########################################################################################################################################
 
-##########################################################################################################################################
-function Convert-AccessToString {
+
 <#
 .SYNOPSIS
 
 .DESCRIPTION 
 #>
+function Convert-AccessToString {
     [CmdLetBinding()]
     Param(
         [Parameter(Mandatory=$true)]
@@ -1675,15 +1660,14 @@ function Convert-AccessToString {
     [string]$AppliesTo=Convert-FileSystemAppliesToString -InheritanceFlags $Access.InheritanceFlags -PropagationFlags $Access.PropagationFlags
     Return "AccessRights  : $rights`nAccessControlType : $controltype`nIdentityReference : $IdentityReference`nIsInherited       : $IsInherited`nAppliesTo         : $AppliesTo`n"
 } # function Convert-AccessToString
-##########################################################################################################################################
 
-##########################################################################################################################################
-function Convert-ACEToString {
+
 <#
 .SYNOPSIS
 
 .DESCRIPTION 
 #>
+function Convert-ACEToString {
     [CmdLetBinding()]
     Param(
         [Parameter(Mandatory=$true)]
@@ -1694,9 +1678,8 @@ function Convert-ACEToString {
     [string]$acccessstring=Convert-ACEToString($ACE.access)
     Return "Path              : $path`nOwner             : $owner`n$acccessstring"
 } # function Convert-ACEToString
-##########################################################################################################################################
 
-##########################################################################################################################################
+
 Function Create-HTMLReportHeader {
     Param (
         [Parameter(Mandatory=$true)]
@@ -1704,15 +1687,13 @@ Function Create-HTMLReportHeader {
     ) # Param
     return $Script:Html_Header -f $Title
 } # Function Create-HTMLReportHeader
-##########################################################################################################################################
 
-##########################################################################################################################################
+
 Function Create-HTMLReportFooter {
     return $Script:Html_Footer
 } # Function Create-HTMLReportFooter
-##########################################################################################################################################
 
-##########################################################################################################################################
+
 Function Create-HTMLComputerNameLine {
     Param (
         [Parameter(Mandatory=$true)]
@@ -1720,9 +1701,8 @@ Function Create-HTMLComputerNameLine {
     ) # Param
 	return $Script:Html_ComputerName -f $ComputerName
 } # Function Create-HTMLComputerNameLine
-##########################################################################################################################################
 
-##########################################################################################################################################
+
 Function Create-HTMLShareNameLine {
     Param (
         [Parameter(Mandatory=$true)]
@@ -1730,9 +1710,8 @@ Function Create-HTMLShareNameLine {
     ) # Param
 	return $Script:Html_ShareName -f $ShareName
 } # Function Create-HTMLShareNameLine
-##########################################################################################################################################
 
-##########################################################################################################################################
+
 Function Create-HTMLPermissionDiffLine {
     Param (
         [Parameter(Mandatory=$true)]
@@ -1745,21 +1724,27 @@ Function Create-HTMLPermissionDiffLine {
 	[string]$html = $PermissionDiff.Difference
 	return $Script:Html_DifferenceLine -f $Label,$Class,$Html
 } # Function Create-HTMLPermissionDiffLine
-##########################################################################################################################################
 
-##########################################################################################################################################
+
 # Ensure all the custom classes are loaded in available
 Initialize-Module
-##########################################################################################################################################
 
 
-##########################################################################################################################################
 # Export the Module Cmdlets
-Export-ModuleMember -Function New-ACLShareReport,New-ACLPathFileReport, `
-	Import-ACLReport,Export-ACLReport,Import-ACLDiffReport,Export-ACLDiffReport, `
-	Compare-ACLReports, `
-	Get-ACLShare, `
-	Get-ACLShareACL,Get-ACLPathFileACL,Get-ACLShareFileACL, `
-	Import-ACLPermission,Export-ACLPermission,Import-ACLPermissionDiff,Export-ACLPermissionDiff, `
+Export-ModuleMember -Function `
+    New-ACLShareReport,`
+    New-ACLPathFileReport, `
+	Import-ACLReport,`
+    Export-ACLReport,`
+    Import-ACLDiffReport,`
+    Export-ACLDiffReport,`
+	Compare-ACLReports,`
+	Get-ACLShare,`
+	Get-ACLShareACL,`
+    Get-ACLPathFileACL,`
+    Get-ACLShareFileACL,`
+	Import-ACLPermission,`
+    Export-ACLPermission,`
+    Import-ACLPermissionDiff,`
+    Export-ACLPermissionDiff,`
 	Export-ACLPermissionDiffHTML
-##########################################################################################################################################
