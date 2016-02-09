@@ -100,14 +100,14 @@ try
             Context "Non-inherited permissions only" {
                 It 'Should not throw exception' {
                     {
-                        $BaselinePathFile1 = New-ACLPathFileReport -Path $Global:SharePaths
+                        $Global:NonInheritedPathFileReport = New-ACLPathFileReport -Path $Global:SharePaths
                     } | Should Not Throw
                 }
             }
             Context "All permissions" {
                 It 'Should not throw exception' {
                     {
-                        $BaselinePathFile2 = New-ACLPathFileReport -Path $Global:SharePaths -IncludeInherited
+                        $Global:AllPathFileReport = New-ACLPathFileReport -Path $Global:SharePaths -IncludeInherited
                     } | Should Not Throw
                 }
             }
@@ -117,14 +117,14 @@ try
             Context "Non-inherited permissions only" {
                 It 'Should not throw exception' {
                     {
-                        $BaselinePathFile3 = New-ACLShareReport -ComputerName $ENV:ComputerName
+                        $Global:NonInheritedShareReport = New-ACLShareReport -ComputerName $ENV:ComputerName
                     } | Should Not Throw
                 }
             }
             Context "All permissions" {
                 It 'Should not throw exception' {
                     {
-                        $BaselinePathFile4 = New-ACLShareReport -ComputerName $ENV:ComputerName -IncludeInherited
+                        $Global:AllShareReport = New-ACLShareReport -ComputerName $ENV:ComputerName -IncludeInherited
                     } | Should Not Throw
                 }
             }
@@ -134,14 +134,14 @@ try
             Context "Path/File report with Non-inherited permissions only" {
                 It 'Should not throw exception' {
                     {
-                        $BaselinePathFile1 | Export-ACLReport -Path (Join-Path -Path $Global:ArtifactPath -ChildPath 'IntegrationTests.PathFileNonInheritedPermissions.Report.acl') -Force
+                        $Global:NonInheritedPathFileReport | Export-ACLReport -Path (Join-Path -Path $Global:ArtifactPath -ChildPath 'IntegrationTests.PathFileNonInheritedPermissions.Report.acl') -Force
                     } | Should Not Throw
                 }
             }
             Context "Path/File report with All permissions" {
                 It 'Should not throw exception' {
                     {
-                        $BaselinePathFile2 | Export-ACLReport -Path (Join-Path -Path $Global:ArtifactPath -ChildPath 'IntegrationTests.PathFileAllPermissions.Report.acl') -Force
+                        $Global:AllPathFileReport | Export-ACLReport -Path (Join-Path -Path $Global:ArtifactPath -ChildPath 'IntegrationTests.PathFileAllPermissions.Report.acl') -Force
                     } | Should Not Throw
                 }
             }
@@ -151,14 +151,14 @@ try
             Context "Share report with Non-inherited permissions only" {
                 It 'Should not throw exception' {
                     {
-                        $BaselinePathFile3 | Export-ACLReport -Path (Join-Path -Path $Global:ArtifactPath -ChildPath 'IntegrationTests.ShareNonInheritedPermissions.Report.acl') -Force
+                        $Global:NonInheritedShareReport | Export-ACLReport -Path (Join-Path -Path $Global:ArtifactPath -ChildPath 'IntegrationTests.ShareNonInheritedPermissions.Report.acl') -Force
                     } | Should Not Throw
                 }
             }
             Context "Share report with All permissions" {
                 It 'Should not throw exception' {
                     {
-                        $BaselinePathFile4 | Export-ACLReport -Path (Join-Path -Path $Global:ArtifactPath -ChildPath 'IntegrationTests.ShareAllPermissions.Report.acl') -Force
+                        $Global:AllShareReport | Export-ACLReport -Path (Join-Path -Path $Global:ArtifactPath -ChildPath 'IntegrationTests.ShareAllPermissions.Report.acl') -Force
                     } | Should Not Throw
                 }
             }
