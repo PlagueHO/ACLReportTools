@@ -1172,30 +1172,33 @@ function Get-ACLShareFileACL
         foreach ($access in $root_file_acl)
         {
 			# Write each non-inherited ACL from the root into the array of ACL's 
+            if ($access.IsInherited)
+            {
+                [String] $Inherited = "Inherited from $($access.InheritedFrom)" 
+            }
+            else
+            {
+                [String] $Inherited = 'Not-inherited'                    
+            }
 			$file_acls += New-PermissionObject `
                 -ComputerName $ComputerName `
                 -Type ([ACLReportTools.PermissionTypeEnum]::Folder) `
                 -Path $Path `
                 -Owner $owner `
                 -Access $access `
-                -Share $ShareName
+                -Share $ShareName `
+                -Inherited $Inherited
 			Write-Verbose -Message "Get-ACLShareFileACL: Root ACL for $ShareName path $Path owner $Owner`n$(Convert-AccessToString($Access))"
         } # Foreach
         if ($Recurse)
         {
-	        if ($IncludeInherited)
-            {
-                # Generate all file/folder ACLs for subfolders and/or files containined within the share recursively
-                $node_file_acls = Get-childitem -Path $Path -recurse |
-                    Get-NTFSAccess                
-            }
-            else
+            # Generate all file/folder ACLs for subfolders and/or files containined within the share recursively
+            $node_file_acls = Get-childitem -Path $Path -recurse |
+                Get-NTFSAccess              
+	        if (! $IncludeInherited)
             {
                 # Generate any non-inferited file/folder ACLs for subfolders and/or files containined within the share recursively
-                $node_file_acls = Get-childitem -Path $Path -recurse |
-                    Get-NTFSInheritance |
-                    Where-Object -Property AccessInheritanceEnabled -eq $False |
-                    Get-NTFSAccess
+                $node_file_acls = $node_file_acls | Where-Object -Property IsInherited -eq $False    
             }
 	        $lastPath = ''
 			foreach ($access in $node_file_acls)
@@ -1224,13 +1227,13 @@ function Get-ACLShareFileACL
 					[String]$Owner = (Get-NTFSOwner -Path $Path).Owner.AccountName
 					$lastPath = $access.FullName
 				}            
-                [String] $Inherited = 'Not-inherited' 
-	            if ($IncludeInherited)
+	            if ($IncludeInherited -and $access.IsInherited)
                 {
-                    if ((Get-NTFSInheritance -Path $Path).AccessInheritanceEnabled)
-                    {
-                       $Inherited = 'Inherited' 
-                    }
+                    [String] $Inherited = "Inherited from $($access.InheritedFrom)" 
+                }
+                else
+                {
+                    [String] $Inherited = 'Not-inherited'                    
                 }
                 $file_acls += New-PermissionObject `
                     -ComputerName $ComputerName `
@@ -1299,29 +1302,32 @@ function Get-ACLPathFileACL
     foreach ($access in $root_file_acl)
     {
         # Write each non-inherited ACL from the root into the array of ACL's 
+        if ($access.IsInherited)
+        {
+            $Inherited = "Inherited from $($access.InheritedFrom)" 
+        }
+        else
+        {
+            $Inherited = 'Not-inherited'                    
+        }
         $file_acls += New-PermissionObject `
             -ComputerName $ComputerName `
             -Type ([ACLReportTools.PermissionTypeEnum]::Folder) `
             -Path $Path `
             -Owner $owner `
-            -Access $access
+            -Access $access `
+            -Inherited $Inherited
 		Write-Verbose -Message "Get-ACLPathFileACL: Root ACL for $Path owner $Owner`n$(Convert-AccessToString($Access))"
     } # Foreach
     if ($Recurse)
     {
-        if ($IncludeInherited)
-        {
-            # Generate all file/folder ACLs for subfolders and/or files containined within the share recursively
-            $node_file_acls = Get-childitem -Path $Path -recurse |
-                Get-NTFSAccess                
-        }
-        else
+        # Generate all file/folder ACLs for subfolders and/or files containined within the share recursively
+        $node_file_acls = Get-childitem -Path $Path -recurse |
+            Get-NTFSAccess              
+        if (! $IncludeInherited)
         {
             # Generate any non-inferited file/folder ACLs for subfolders and/or files containined within the share recursively
-            $node_file_acls = Get-childitem -Path $Path -recurse |
-                Get-NTFSInheritance |
-                Where-Object -Property AccessInheritanceEnabled -eq $False |
-                Get-NTFSAccess
+            $node_file_acls = $node_file_acls | Where-Object -Property IsInherited -eq $False    
         }
         $LastPath = ''
 		foreach ($access in $node_file_acls)
@@ -1347,16 +1353,16 @@ function Get-ACLPathFileACL
                 {
 					$type = [ACLReportTools.PermissionTypeEnum]::File
 				}
-				[String]$Owner = (Get-NTFSOwner -Path $Path).Owner.AccountName
+				[String] $Owner = (Get-NTFSOwner -Path $Path).Owner.AccountName
 				$LastPath = $Path
 			}            
-            [String] $Inherited = 'Not-inherited' 
-            if ($IncludeInherited)
+            if ($IncludeInherited -and $access.IsInherited)
             {
-                if ((Get-NTFSInheritance -Path $Path).AccessInheritanceEnabled)
-                {
-                    $Inherited = 'Inherited' 
-                }
+                $Inherited = "Inherited from $($access.InheritedFrom)" 
+            }
+            else
+            {
+                $Inherited = 'Not-inherited'                    
             }
 			$file_acls += New-PermissionObject `
                 -ComputerName $ComputerName `
