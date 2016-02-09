@@ -136,28 +136,32 @@ try
             Context "Export Path/File report with Non-inherited permissions only" {
                 It 'Should not throw exception' {
                     {
-                        $Global:NonInheritedPathFileReport | Export-ACLReport -Path (Join-Path -Path $Global:ArtifactPath -ChildPath 'IntegrationTests.PathFileNonInheritedPermissions.Report.acl') -Force
+                        $Global:NonInheritedPathFileReport | Export-ACLReport `
+                            -Path (Join-Path -Path $Global:ArtifactPath -ChildPath 'IntegrationTests.PathFileNonInheritedPermissions.Report.acl') -Force
                     } | Should Not Throw
                 }
             }
             Context "Export Path/File report with All permissions" {
                 It 'Should not throw exception' {
                     {
-                        $Global:AllPathFileReport | Export-ACLReport -Path (Join-Path -Path $Global:ArtifactPath -ChildPath 'IntegrationTests.PathFileAllPermissions.Report.acl') -Force
+                        $Global:AllPathFileReport | Export-ACLReport `
+                            -Path (Join-Path -Path $Global:ArtifactPath -ChildPath 'IntegrationTests.PathFileAllPermissions.Report.acl') -Force
                     } | Should Not Throw
                 }
             }
             Context "Export Share report with Non-inherited permissions only" {
                 It 'Should not throw exception' {
                     {
-                        $Global:NonInheritedShareReport | Export-ACLReport -Path (Join-Path -Path $Global:ArtifactPath -ChildPath 'IntegrationTests.ShareNonInheritedPermissions.Report.acl') -Force
+                        $Global:NonInheritedShareReport | Export-ACLReport `
+                            -Path (Join-Path -Path $Global:ArtifactPath -ChildPath 'IntegrationTests.ShareNonInheritedPermissions.Report.acl') -Force
                     } | Should Not Throw
                 }
             }
             Context "Export Share report with All permissions" {
                 It 'Should not throw exception' {
                     {
-                        $Global:AllShareReport | Export-ACLReport -Path (Join-Path -Path $Global:ArtifactPath -ChildPath 'IntegrationTests.ShareAllPermissions.Report.acl') -Force
+                        $Global:AllShareReport | Export-ACLReport `
+                            -Path (Join-Path -Path $Global:ArtifactPath -ChildPath 'IntegrationTests.ShareAllPermissions.Report.acl') -Force
                     } | Should Not Throw
                 }
             }
@@ -350,6 +354,41 @@ try
                 }
                 It 'Should return some differences' {
                     $Global:AllShareModifiedDiffReport | Should not be $null
+                }
+            }
+        }
+
+        Describe "Export-ACLPermissionDiff" {
+            Context "Export Path/File Different report with Non-inherited permissions only after permissions modified" {
+                It 'Should not throw exception' {
+                    {
+                        $Global:NonInheritedPathFileModifiedDiffReport | Export-ACLPermissionDiff `
+                            -Path (Join-Path -Path $Global:ArtifactPath -ChildPath 'IntegrationTests.PathFileNonInheritedModifiedPermissionsDiff.Report.acr') -Force
+                    } | Should Not Throw
+                }
+            }
+            Context "Export Path/File Different report with All permissions after permissions modified" {
+                It 'Should not throw exception' {
+                    {
+                        $Global:AllPathFileModifiedDiffReport | Export-ACLPermissionDiff `
+                            -Path (Join-Path -Path $Global:ArtifactPath -ChildPath 'IntegrationTests.PathFileAllModifiedPermissionsDiff.Report.acr') -Force
+                    } | Should Not Throw
+                }
+            }
+            Context "Export Path/File Different report with Non-inherited permissions only after permissions modified" {
+                It 'Should not throw exception' {
+                    {
+                        $Global:NonInheritedShareModifiedDiffReport | Export-ACLPermissionDiff `
+                            -Path (Join-Path -Path $Global:ArtifactPath -ChildPath 'IntegrationTests.ShareNonInheritedModifiedPermissionsDiff.Report.acr') -Force
+                    } | Should Not Throw
+                }
+            }
+            Context "Export Path/File Different report with All permissions after permissions modified" {
+                It 'Should not throw exception' {
+                    {
+                        $Global:AllShareModifiedDiffReport | Export-ACLPermissionDiff `
+                            -Path (Join-Path -Path $Global:ArtifactPath -ChildPath 'IntegrationTests.ShareAllModifiedPermissionsDiff.Report.acr') -Force                        
+                    } | Should Not Throw
                 }
             }
         }
