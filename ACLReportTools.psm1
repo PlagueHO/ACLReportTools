@@ -1396,17 +1396,14 @@ function Get-ACLPathFileACL
 
 .EXAMPLE 
 	New-ACLPathFileReport -Path e:\Shares | Export-ACLPermission -Path C:\ACLReports\server01.acl
-
 	Creates a new ACL Permission report for e:\Shares and saves it to the file C:\ACLReports\server01.acl.
 
 .EXAMPLE 
 	Export-ACLPermission -Path C:\ACLReports\server01.acl -InputObject $Acls
-
 	Saves the ACL Permissions in the $Acls variable to the file C:\ACLReports\server01.acl.
 
 .EXAMPLE 
 	Export-ACLPermission -Path C:\ACLReports\server01.acl -InputObject (Get-ACLShare -ComputerName SERVER01 | Get-ACLShareFileACL -Recurse)
-
 	Saves the file ACLs for all shares on the compuer SERVER01 to the file C:\ACLReports\server01.acl.
 #>    
 function Export-ACLPermission
@@ -1475,7 +1472,6 @@ function Export-ACLPermission
 
 .EXAMPLE 
 	Export-ACLPermissionDiff -Path C:\ACLReports\server01.acr -InputObject $DiffReport
-
 	Saves the ACL Difference objects in the $DiffReport variable to the file C:\ACLReports\server01.acr.  If the file exists it will be overwritten if the Force switch is set.
 #>    
 function Export-ACLPermissionDiff

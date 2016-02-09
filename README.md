@@ -81,33 +81,69 @@ Import-Module ACLReportTools
 
 Example Usage
 -------------
-### Example Usage: Creating a Baseline ACL Report file from Folders
-This example creates a baseline ACL Report on the folders e:\work and d:\profiles and stores it in the Baseline.acl file in the current users Documents folder.
+### Example Usage: Creating a Baseline ACL Report file from non-inherited permissions only from files and folders
+This example creates a baseline ACL Report on the folders e:\work and d:\profiles and stores it in the Baseline.acl file in the current users Documents folder. It will include only non-inherited permissions.
 ```powershell
 Import-Module ACLReportTools
 New-ACLPathFileReport -Path "e:\Work","d:\Profiles" | Export-ACLReport -Path "$HOME\Documents\Baseline.acl" -Force
 ```
 
-### Example Usage: Comparing a Baseline ACL Report file from Folders with Current ACLs
-This example compares the previously created baseline ACL Report stored in the users Documents folder and compares it with the current ACLs for the folders e:\Work and d:\Profiles.
+
+### Example Usage: Comparing a Baseline ACL Report file with the current non-inherited permissions only from current file and folder ACLs
+This example compares the previously created baseline ACL Report stored in the users Documents folder and compares it with the current ACLs for the folders e:\Work and d:\Profiles. It will include only non-inherited permissions.
 ```powershell
 Import-Module ACLReportTools
 Compare-ACLReports -Baseline (Import-ACLReport -Path "$HOME\Documents\Baseline.acl") -Path "e:\Work","d:\Profiles"
 ```
 
-### Example Usage: Creating a Baseline ACL Report file from Shares
-This example creates a baseline ACL Report on the shares \\client\Share1\ and \\client\Share2\ and stores it in the Baseline.acl file in the current users Documents folder.
+
+### Example Usage: Creating a Baseline ACL Report file from inherited and non-inherited permissions only from files and folders
+This example creates a baseline ACL Report on the folders e:\work and d:\profiles and stores it in the Baseline.acl file in the current users Documents folder. It will include inherited and non-inherited permissions.
+```powershell
+Import-Module ACLReportTools
+New-ACLPathFileReport -Path "e:\Work","d:\Profiles" -IncudeInherited | Export-ACLReport -Path "$HOME\Documents\Baseline.acl" -Force
+```
+
+
+### Example Usage: Comparing a Baseline ACL Report file with the current inherited and non-inherited permissions only from current file and folder ACLs
+This example compares the previously created baseline ACL Report stored in the users Documents folder and compares it with the current ACLs for the folders e:\Work and d:\Profiles. It will include inherited and non-inherited permissions.
+```powershell
+Import-Module ACLReportTools
+Compare-ACLReports -Baseline (Import-ACLReport -Path "$HOME\Documents\Baseline.acl") -Path "e:\Work","d:\Profiles" -IncudeInherited
+```
+
+
+### Example Usage: Creating a Baseline ACL Report file from non-inherited permissions only from shares
+This example creates a baseline ACL Report on the shares \\client\Share1\ and \\client\Share2\ and stores it in the Baseline.acl file in the current users Documents folder. It will include only non-inherited permissions.
 ```powershell
 Import-Module ACLReportTools
 New-ACLShareReport -ComputerName Client -Include Share1,Share2 | Export-ACLReport -Path "$HOME\Documents\Baseline.acl" -Force
 ```
 
-### Example Usage: Comparing a Baseline ACL Report file from Shares with Current ACLs
-This example compares the previously created baseline ACL Report stored in the users Documents folder and compares it with the current ACLs for the folders e:\Work and d:\Profiles.
+
+### Example Usage: Comparing a Baseline ACL Report file with the current non-inherited permissions only from current shares ACLs
+This example compares the previously created baseline ACL Report stored in the users Documents folder and compares it with the current ACLs for the shares \\client\Share1\ and \\client\Share2\. It will include only non-inherited permissions.
 ```powershell
 Import-Module ACLReportTools
 Compare-ACLReports -Baseline (Import-ACLReport -Path "$HOME\Documents\Baseline.acl") -ComputerName Client -Include Share1,Share2
 ```
+
+
+### Example Usage: Creating a Baseline ACL Report file from inherited and non-inherited permissions only from shares
+This example creates a baseline ACL Report on the shares \\client\Share1\ and \\client\Share2\ and stores it in the Baseline.acl file in the current users Documents folder. It will include inherited and non-inherited permissions.
+```powershell
+Import-Module ACLReportTools
+New-ACLShareReport -ComputerName Client -Include Share1,Share2 | Export-ACLReport -Path "$HOME\Documents\Baseline.acl" -Force -IncudeInherited
+```
+
+
+### Example Usage: Comparing a Baseline ACL Report file with the current inherited and non-inherited permissions only from current shares ACLs
+This example compares the previously created baseline ACL Report stored in the users Documents folder and compares it with the current ACLs for the shares \\client\Share1\ and \\client\Share2\. It will include inherited and non-inherited permissions.
+```powershell
+Import-Module ACLReportTools
+Compare-ACLReports -Baseline (Import-ACLReport -Path "$HOME\Documents\Baseline.acl") -ComputerName Client -Include Share1,Share2 -IncudeInherited
+```
+
 
 ### Example Usage: Exporting a Difference Report as an HTML File
 This example takes the output of the Compare-ACLReports cmdlet and formats it as HTML and saves it for easier review and storage.
@@ -116,238 +152,522 @@ Import-Module ACLReportTools
 Compare-ACLReports -Baseline (Import-ACLReport -Path "$HOME\Documents\Baseline.acl") -ComputerName Client -Include Share1,Share2 | Export-ACLPermissionDiffHTML -Path "$HOME\Documents\Difference.htm"
 ```
 
+
 CmdLets
 -------
-### CmdLet New-ACLShareReport
+### New-ACLShareReport
+#### SYNOPSIS
 Creates a list of Share, File and Folder ACLs for the specified shares/computers.
 
-For example:
-```powershell
-New-ACLShareReport -ComputerName CLIENT01,CLIENT02 -Include SHARE1,SHARE2
-```
+#### DESCRIPTION 
+Produces an array of [ACLReportTools.Permission] objects for the computers provided. Specific shares can be specified or excluded using the Include/Exclude parameters.
 
-See:
-```powershell
-Get-Help -Name New-ACLShareReport -Full
-```
-For more information.
+The report can be stored for use as a comparison in either a variable or as a file using the Export-ACLReport cmdlet (found in this module). For example:
 
-### CmdLet New-ACLPathFileReport
+```powershell
+New-ACLShareReport -ComputerName CLIENT01 -Include MyShare,OtherShare | Export-ACLReport -path c:\ACLReports\CLIENT01_2014_11_14.acl
+```
+     
+#### PARAMETER ComputerName
+This is the computer(s) to create the ACL Share report for. The Computer names can also be passed in via the pipeline.
+
+#### PARAMETER Include
+This is a list of shares to include from the report. If this parameter is not set it will default to including all shares. This parameter can't be set if the Exclude parameter is set.
+
+#### PARAMETER Exclude
+This is a list of shares to exclude from the report. If this parameter is not set it will default to excluding no shares. This parameter can't be set if the Include parameter is set.
+
+#### PARAMETER IncludeInherited
+Setting this switch will cause the non inherited file/folder ACLs to be pulled recursively.
+
+#### EXAMPLE 
+```powershell
+New-ACLShareReport -ComputerName CLIENT01
+```
+Creates a report of all the Share and file/folder ACLs on the CLIENT01 machine.
+
+#### EXAMPLE 
+```powershell
+New-ACLShareReport -ComputerName CLIENT01 -Include MyShare,OtherShare
+```
+Creates a report of all the Share and file/folder ACLs on the CLIENT01 machine that are in shares named either MyShare or OtherShare.
+
+#### EXAMPLE 
+```powershell
+New-ACLShareReport -ComputerName CLIENT01 -Exclude SysVol
+```
+Creates a report of all the Share and file/folder ACLs on the CLIENT01 machine that are in shares not named SysVol.
+
+
+### New-ACLPathFileReport
+#### SYNOPSIS
 Creates a list of File and Folder ACLs for the provided path(s).
 
-For example:
+#### DESCRIPTION 
+Produces an array of [ACLReportTools.Permission] objects for the list of paths provided.
+
+The report can be stored for use as a comparison in either a variable or as a file using the Export-ACLReport cmdlet (found in this module). For example:
+
 ```powershell
-New-ACLPathFileReport -Path 'e:\work','e:\profile'
+New-ACLPathFileReport -Path e:\public | Export-ACLReport -path c:\ACLReports\Public_2015-04-04.acl
 ```
+     
+#### PARAMETER Path
+This is the path(s) to create the ACL PathFile report for.
 
-See:
+#### PARAMETER IncludeInherited
+Setting this switch will cause the non inherited file/folder ACLs to be pulled recursively.
+
+#### EXAMPLE 
 ```powershell
-Get-Help -Name New-ACLPathFileReport -Full
+New-ACLPathFileReport -Path e:\public
 ```
-For more information.
+Creates a report of all the file/folder ACLs in the e:\public folder on this machine.
 
-### CmdLet Export-ACLReport
-Export an ACL Permission Report as a file.
+    
+### Export-ACLReport
+#### SYNOPSIS
+Export an ACL Report as a file.
 
-For example:
+#### DESCRIPTION 
+This Cmdlet will save whatever ACL Report that is in the pipeline to a file.
+
+This cmdlet just calls Export-ACLPermission although at some point will add additional functionality.
+     
+#### PARAMETER Path
+This is the path to the ACL Permission Report output file. This parameter is required.
+
+#### PARAMETER InputObject
+Specifies the Permissions objects to export to the file. Enter a variable that contains the objects or type a command or expression that gets the objects. You can also pipe ACLReportTools.Permission objects to this cmdlet.
+
+#### PARAMETER Force
+Causes the file to be overwritten if it exists.
+
+#### EXAMPLE 
 ```powershell
-Export-ACLReport -Path C:\ACLReports\server01.acl -InputObject $PermissionReport
+New-ACLShareReport -ComputerName CLIENT01 -Include MyShare,OtherShare | Export-ACLReport -path c:\ACLReports\CLIENT01_2014_11_14.acl
 ```
+Creates a new ACL Share Report for Computer Client01 for the MyShare and OtherShares and exports it to the file C:\ACLReports\CLIENT01_2014_11_14.acl.
 
-See:
+#### EXAMPLE 
 ```powershell
-Get-Help -Name Export-ACLReport -Full
+Export-ACLReport -Path C:\ACLReports\server01.acl -InputObject $ShareReport
 ```
-For more information.
+Saves the ACLs in the $ShareReport variable to the file C:\ACLReports\server01.acl.
 
-### CmdLet Import-ACLReport
-This cmdlet imports an ACL Permission Report from the file specified back and returns the objects in the pipeline.
+#### EXAMPLE 
+```powershell
+Export-ACLReport -Path C:\ACLReports\server01.acl -InputObject (New-ACLShareReport -ComputerName SERVER01) -Force
+```
+Saves the file ACLs for all shares on the compuer SERVER01 to the file C:\ACLReports\server01.acl. If the file exists it will be overwritten.
 
-For example:
+#### EXAMPLE 
+```powershell
+New-ACLShareReport -ComputerName SERVER01 | Export-ACLReport -Path C:\ACLReports\server01.acl -Force
+```
+Saves the file ACLs for all shares on the compuer SERVER01 to the file C:\ACLReports\server01.acl. If the file exists it will be overwritten.
+    
+
+### Import-ACLReport
+#### SYNOPSIS
+Import the ACL Report that is in a file.
+
+#### DESCRIPTION 
+This Cmdlet will import all the ACL Report (ACLReportTools.Permission) objects from a specified file into the pipeline.
+
+This cmdlet just calls Import-ACLPermission although at some point will add additional functionality.
+     
+#### PARAMETER Path
+This is the path to the ACL Permission Report file to import. This parameter is required.
+
+#### EXAMPLE 
 ```powershell
 Import-ACLReport -Path C:\ACLReports\server01.acl
 ```
+Imports the ACL Share Report from the file C:\ACLReports\server01.acl and puts it into the pipeline
 
-See:
+
+### Export-ACLDiffReport
+#### SYNOPSIS
+Export an ACL Permission Diff Report as a file.
+
+#### DESCRIPTION 
+This Cmdlet will save whatever ACL Permission Diff Report that is in the pipeline to a file.
+
+This cmdlet just calls Export-ACLPermissionDiff although at some point will add additional functionality.
+     
+#### PARAMETER Path
+This is the path to the ACL Permission Diff Report output file. This parameter is required.
+
+#### PARAMETER InputObject
+Specifies the Permissions objects to export to the file. Enter a variable that contains the objects or type a command or expression that gets the objects. You can also pipe ACLReportTools.PermissionDiff objects to Export-ACLReport.
+
+#### PARAMETER Force
+Causes the file to be overwritten if it exists.
+
+#### EXAMPLE 
 ```powershell
-Get-Help -Name Import-ACLReport -Full
+Compare-ACLReports -Baseline (Import-ACLReports -Path c:\ACLReports\CLIENT01_2014_11_14.acl) -With (Get-ACLReport -ComputerName CLIENT01) | Export-ACLDiffReport -Path "$HOME\Documents\Compare.acr"
 ```
-For more information.
+This will perform a comparison of the current share ACL report from computer CLIENT01 with the stored share ACL report in file c:\ACLReports\CLIENT01_2014_11_14.acl and then export the report file
+to $HOME\Documents\Compare.acr
 
-### CmdLet Export-ACLDiffReport
-Export an ACL Difference Report as a file.
 
-For example:
-```powershell
-Export-ACLDiffReport -Path C:\ACLReports\server01.acr -InputObject $DiffReport
-```
+### Import-ACLDiffReport
+#### SYNOPSIS
+Import the ACL Difference Report that is in a file.
 
-See:
-```powershell
-Get-Help -Name Export-ACLDiffReport -Full
-```
-For more information.
+#### DESCRIPTION 
+This Cmdlet will import all the ACL Difference Report (ACLReportTools.PermissionDiff) objects from a specified file into the pipeline.
 
-### CmdLet Import-ACLDiffReport
-This cmdlet imports an ACL Difference Report from the file specified back and returns the objects in the pipeline.
+This cmdlet just calls Import-ACLPermissionDiff although at some point will add additional functionality.
+     
+#### PARAMETER Path
+This is the path to the ACL Permission Report file to import. This parameter is required.
 
-For example:
+#### EXAMPLE 
 ```powershell
 Import-ACLDiffReport -Path C:\ACLReports\server01.acr
 ```
+Imports the ACL Share Report from the file C:\ACLReports\server01Permission and puts it into the pipeline
 
-See:
-```powershell
-Get-Help -Name Import-ACLDiffReport -Full
-```
-For more information.
 
-### CmdLet Compare-ACLReports
+### Compare-ACLReports
+#### SYNOPSIS
 Compares two ACL reports and produces an ACL Difference report.
 
-For example:
-```powershell
-Compare-ACLReports -Baseline (Import-ACLReport -Path C:\ACLReports\server01.acl) -Path 'e:\work','e:\profile'
-```
+#### DESCRIPTION 
+This cmdlets compares two ACL Share reports and produces a difference list in the pipeline that can then be reported on.
 
-See:
-```powershell
-Get-Help -Name Compare-ACLReports -Full
-```
-For more information.
+A baseline report (usually from importing a previous ACL Share Report) must be provided. The second ACL Share report (called the current ACL Share report) will be compared against the baseline report.
+The current ACL report will be either generated by the New-ACLShareReport or New-ACLPathFileReport cmdlets (depending on parameters) or it can be passed in via the With variable.
+   
+#### PARAMETER Baseline
+This is the baseline report data the comparison will focus on. It will usually be pulled in from a previously saved Share ACL report via the Import-ACLReports 
 
-### CmdLet Export-ACLPermission
+#### PARAMETER ComputerName
+This is the computer(s) to generate the current list of Share ACLs for to perform the comparison with the baseline. The Computer names can also be passed in via the pipeline.
+
+This parameter should not be used if the With Parameter is provided.
+
+#### PARAMETER Include
+This is a list of shares to include from the comparison. If this parameter is not set it will default to including all shares. This parameter can't be set if the Exclude parameter is set.
+
+This parameter should not be used if the With Parameter is provided.
+
+#### PARAMETER Exclude
+This is a list of shares to exclude from the comparison. If this parameter is not set it will default to excluding no shares. This parameter can't be set if the Include parameter is set.
+
+This parameter should not be used if the With Parameter is provided.
+
+#### PARAMETER With
+This parameter provides an ACL Share report to compare with the Baseline ACL Share report.
+
+This parameter should not be used if the ComputerName Parameter is provided.
+
+#### PARAMETER ReportNoChange
+Setting this switch will cause a 'No Change' report item to be shown when a share is identical in both the baseline and current reports.
+
+#### PARAMETER IncludeInherited
+Setting this switch will cause the non inherited file/folder ACLs to be pulled recursively.
+
+#### EXAMPLE
+```powershell
+Compare-ACLReports -Baseline (Import-ACLReports -Path c:\ACLReports\CLIENT01_2014_11_14.acl) -With (Get-ACLReport -ComputerName CLIENT01)
+```
+This will perform a comparison of the current share ACL report from computer CLIENT01 with the stored share ACL report in file c:\ACLReports\CLIENT01_2014_11_14.acl
+
+#### EXAMPLE
+```powershell
+Compare-ACLReports -Baseline (Import-ACLReports -Path c:\ACLReports\CLIENT01_2014_11_14.acl) -ComputerName CLIENT01
+```
+This will perform a comparison of the current share ACL report from computer CLIENT01 with the stored share ACL report in file c:\ACLReports\CLIENT01_2014_11_14.acl
+
+#### EXAMPLE
+```powershell
+Compare-ACLReports -Baseline (Import-ACLReports -Path c:\ACLReports\CLIENT01_2014_11_14_SHARE01_ONLY.acl) -ComputerName CLIENT01 -Include SHARE01
+```
+This will perform a comparison of the current share ACL report from computer CLIENT01 for only SHARE01 with the stored share ACL report in file c:\ACLReports\CLIENT01_2014_11_14_SHARE01_ONLY.acl
+
+#### EXAMPLE
+```powershell
+"CLIENT01" | Compare-ACLReports -Baseline (Import-ACLReports -Path c:\ACLReports\CLIENT01_2014_11_14.acl)
+```
+This will perform a comparison of the current share ACL report from computer CLIENT01 with the stored share ACL report in file c:\ACLReports\CLIENT01_2014_11_14.acl
+
+#### EXAMPLE
+```powershell
+Compare-ACLReports -Baseline (Import-ACLReports -Path c:\ACLReports\CLIENT01_2014_11_14.acl) -With (Import-ACLReports -Path c:\ACLReports\CLIENT01_2014_06_01.acl)
+```
+This will perform a comparison of the share ACL report in file c:\ACLReports\CLIENT01_2014_06_01.acl with the stored share ACL report in file c:\ACLReports\CLIENT01_2014_11_14.acl
+
+
+### Export-ACLPermission
+#### SYNOPSIS
 Export the ACL Permissions objects that are provided as a file.
 
-For example:
-```powershell
-Export-ACLPermission -Path C:\ACLReports\server01.acl -InputObject $ShareReport
-```
+#### DESCRIPTION 
+This Cmdlet will save what ever ACLs (ACLReportTools.Permission) to a file.
+     
+#### PARAMETER Path
+This is the path to the ACL Permissions file output file. This parameter is required.
 
-See:
-```powershell
-Get-Help -Name Export-ACLPermission -Full
-```
-For more information.
+#### PARAMETER InputObject
+Specifies the ACL Permissions objects to export to the file. Enter a variable that contains the objects or type a command or expression that gets the objects. You can also pipe ACLReportTools.Permission objects to cmdlet.
 
-### CmdLet Import-ACLPermission
+#### PARAMETER Force
+Causes the file to be overwritten if it exists.
+
+#### EXAMPLE 
+```powershell
+New-ACLPathFileReport -Path e:\Shares | Export-ACLPermission -Path C:\ACLReports\server01.acl
+```
+Creates a new ACL Permission report for e:\Shares and saves it to the file C:\ACLReports\server01.acl.
+
+#### EXAMPLE 
+```powershell
+Export-ACLPermission -Path C:\ACLReports\server01.acl -InputObject $Acls
+```
+Saves the ACL Permissions in the $Acls variable to the file C:\ACLReports\server01.acl.
+
+#### EXAMPLE 
+```powershell
+Export-ACLPermission -Path C:\ACLReports\server01.acl -InputObject (Get-ACLShare -ComputerName SERVER01 | Get-ACLShareFileACL -Recurse)
+```
+Saves the file ACLs for all shares on the compuer SERVER01 to the file C:\ACLReports\server01.acl.
+
+
+### Import-ACLPermission
+#### SYNOPSIS
 Import the a File containing serialized ACL Permission objects that are in a file back into the pipeline.
 
-For example:
-```powershell
-Import-ACLPermission -Path c:\ACLs\CLIENT01.ACL
-```
+#### DESCRIPTION
+This Cmdlet will load all the ACLs (ACLReportTools.Permission) records from a specified file.
+     
+#### PARAMETER Path
+This is the path to the file containing ACL Permission objects. This parameter is required.
 
-See:
+#### EXAMPLE 
 ```powershell
-Get-Help -Name Import-ACLPermission -Full
+Import-ACLPermission -Path C:\ACLReports\server01.acl
 ```
-For more information.
+Loads the ACLs in the file C:\ACLReports\server01.acl.
 
-### CmdLet Export-ACLPermissionDiff
+
+### Export-ACLPermissionDiff
+#### SYNOPSIS
 Export the ACL Difference Objects that are provided as a file.
 
-For example:
-```powershell
-Export-ACLPermission -Path C:\ACLReports\server01.acl -InputObject $ShareReport
-```
+#### DESCRIPTION 
+This Cmdlet will export an array of provided Permission Difference [ACLReportTools.PermissionDiff] records to a file.
+     
+#### PARAMETER Path
+This is the path to the ACL Permission Diff file. This parameter is required.
 
-See:
-```powershell
-Get-Help -Name Export-ACLPermissionDiff -Full
-```
-For more information.
+#### PARAMETER InputObject
+Specifies the Permissions objects to export to th file. Enter a variable that contains the objects or type a command or expression that gets the objects. You can also pipe ACLReportTools.PermissionDiff objects to this cmdlet.
 
-### CmdLet Import-ACLPermissionDiff
+#### PARAMETER Force
+Causes the file to be overwritten if it exists.
+
+#### EXAMPLE 
+```powershell
+Export-ACLPermissionDiff -Path C:\ACLReports\server01.acr -InputObject $DiffReport
+```
+Saves the ACL Difference objects in the $DiffReport variable to the file C:\ACLReports\server01.acr.  If the file exists it will be overwritten if the Force switch is set.
+
+
+### Import-ACLPermissionDiff
+#### SYNOPSIS
 Import the a File containing serialized ACL Permission Diff objects that are in a file back into the pipeline.
 
-For example:
-```powershell
-Import-ACLPermissionDiff -Path c:\ACLs\CLIENT01.ACR
-```
+#### DESCRIPTION
+This Cmdlet will load all the ACLs (ACLReportTools.PermissionDiff) records from a specified file.
+     
+#### PARAMETER Path
+This is the path to the file containing ACL Permission Diff objects. This parameter is required.
 
-See:
+#### EXAMPLE 
 ```powershell
-Get-Help -Name Import-ACLPermissionDiff -Full
+Import-ACLPermissionDiff -Path C:\ACLReports\server01.acr
 ```
-For more information.
+Loads the ACL Permission Diff objects in the file C:\ACLReports\server01.acr.
 
-### CmdLet Export-ACLPermissionDiffHTML
+
+### Export-ACLPermissionDiffHTML
+#### SYNOPSIS
 Export the ACL Difference Objects that are provided as an HTML file.
 
-For example:
+#### DESCRIPTION 
+This Cmdlet will export an array of provided Permission Difference [ACLReportTools.PermissionDiff] records to an HTML file for easy viewing and reporting.
+     
+#### PARAMETER Path
+This is the path to the HTML output file. This parameter is required.
+
+#### PARAMETER InputObject
+Specifies the Permissions DIff objects to export to the as HTML. Enter a variable that contains the objects or type a command or expression that gets the objects. You can also pipe ACLReportTools.PermissionDiff objects to this cmdlet.
+
+#### PARAMETER Force
+Causes the file to be overwritten if it exists.
+
+#### PARAMETER Title
+Optional Title text to write into the report.
+
+#### EXAMPLE 
 ```powershell
 Compare-ACLReports -Baseline (Import-ACLReports -Path c:\ACLReports\server01.acl) -With (Get-ACLReport -ComputerName Server01) | Export-ACLPermissionDiffHTML -Path C:\ACLReports\server01.htm
 ```
+Performs a comparison using the Baseline file c:\ACLReports\Server01.acl and the shares on Server01 and outputs ACL Difference Report as an HTML file.
 
-See:
-```powershell
-Get-Help -Name Export-ACLPermissionDiffHTML -Full
-```
-For more information.
 
-### CmdLet Get-ACLShare
+### Get-ACLShare
+#### SYNOPSIS
 Gets a list of the Shares on a specified computer(s) with specified inclusions or exclusions.
 
-For example:
-```powershell
-Get-ACLShare -ComputerName CLIENT01,CLIENT02 -Exclude SYSVOL
-```
+#### DESCRIPTION 
+This function will pull a list of shares that are set up on the specified computer. Shares can also be included or excluded from the share list by setting the Include or Exclude properties.
 
-See:
-```powershell
-Get-Help -Name Get-ACLShare -Full
-```
-For more information.
+The Cmdlet returns an array of ACLReportTools.Share objects.
+     
+#### PARAMETER ComputerName
+This is the computer to get the shares from. If this parameter is not set it will default to the current machine.
 
-### CmdLet Get-ACLShareACL
+#### PARAMETER Include
+This is a list of shares to include from the computer. If this parameter is not set it will default to including all shares. This parameter can't be set if the Exclude parameter is set.
+
+#### PARAMETER Exclude
+This is a list of shares to exclude from the computer. If this parameter is not set it will default to excluding no shares. This parameter can't be set if the Include parameter is set.
+
+#### EXAMPLE 
+```powershell
+Get-ACLShare -ComputerName CLIENT01
+```
+Returns a list of all shares set up on the CLIENT01 machine.
+
+#### EXAMPLE 
+```powershell
+Get-ACLShare -ComputerName CLIENT01 -Include MyShare,OtherShare
+```
+Returns a list of shares that are set up on the CLIENT01 machine that are named either MyShare or OtherShare.
+
+#### EXAMPLE 
+```powershell
+Get-ACLShare -ComputerName CLIENT01 -Exclude SysVol
+```
+Returns a list of shares that are set up on the CLIENT01 machine that are not called SysVol.
+
+#### EXAMPLE 
+```powershell
+Get-ACLShare -ComputerName CLIENT01,CLIENT02
+```
+Returns a list of shares that are set up on the CLIENT01 and CLIENT02 machines.
+
+#### EXAMPLE 
+```powershell
+Get-ACLShare -ComputerName CLIENT01,CLIENT02 -Exclude SysVol
+```
+Returns a list of shares that are set up on the CLIENT01 and CLIENT02 machines that are not called SysVol.
+
+
+### Get-ACLShareACL
+#### SYNOPSIS
 Gets the ACLs for a specified Share.
 
-For example:
-```powershell
-Get-ACLShare -ComputerName CLIENT01,CLIENT02 -Exclude SYSVOL | Get-ACLShareACL
-```
+#### DESCRIPTION 
+This function will return the share ACLs for the specified share.
+     
+#### PARAMETER ComputerName
+This is the computer to get the share ACLs from. If this parameter is not set it will default to the current machine.
 
-See:
-```powershell
-Get-Help -Name Get-ACLShareACL -Full
-```
-For more information.
+#### PARAMETER ShareName
+This is the share name to pull the share ACLs for.
 
-### CmdLet Get-ACLShareFileACL
-Gets all the non-inherited file/folder ACLs definited within a specified Share. A recursive search is optional.
+#### PARAMETER Shares
+This is a pipeline parameter that should be used for passing in a list of shares and computers to pull ACLs for. This parameter expects an array of [ACLReportTools.Share] objects.
 
-For example:
-```powershell
-Get-Shares -ComputerName CLIENT01,CLIENT02 -Exclude SYSVOL | Get-ACLShareFileACL -Recurse
-```
-
-See:
-```powershell
-Get-Help -Name Get-ACLShareFileACL -Full
-```
-For more information.
-
-### CmdLet Get-ACLPathFileACL
-Gets all the non-inherited file/folder ACLs defined within a specified Path. A recursive search is optional.
+This parameter is usually used with the Get-ACLShare CmdLet.
 
 For example:
+
 ```powershell
-Get-ACLPathFileACL -Path c:\ -Recurse
+Get-ACLShare -ComputerName CLIENT01,CLIENT02 -Exclude SYSVOL | Get-ACLShareACL 
 ```
 
-See:
+#### EXAMPLE 
 ```powershell
-Get-Help -Name Get-ACLPathFileACL -Full
+Get-ACLShareACL -ComputerName CLIENT01 -ShareName MyShre
 ```
-For more information.
+Returns the share ACLs for the MyShare Share on the CLIENT01 machine.
 
+
+### Get-ACLShareFileACL
+#### SYNOPSIS
+Gets all the file/folder ACLs definited within a specified Share.
+
+#### DESCRIPTION 
+This function will return a list of file/folder ACLs for the specified share. If the Recurse switch is used then files/folder ACLs will be scanned recursively. If the IncludeInherited switch is set then inherited file/folder permissions will also be returned, otherwise only non-inherited permissions will be returned. 
+     
+#### PARAMETER ComputerName
+This is the computer to get the share ACLs from. If this parameter is not set it will default to the current machine.
+
+#### PARAMETER ShareName
+This is the share name to pull the file/folder ACLs for.
+
+#### PARAMETER Recurse
+Setting this switch will cause the file/folder ACLs to be pulled recursively.
+
+#### PARAMETER IncludeInherited
+Setting this switch will cause the non inherited file/folder ACLs to be pulled recursively.
+
+#### EXAMPLE 
+```powershell
+Get-ACLShareFileACL -ComputerName CLIENT01 -ShareName MyShare
+```
+Returns the file/folder ACLs for the root of MyShare Share on the CLIENT01 machine.
+
+#### EXAMPLE 
+```powershell
+Get-ACLShareFileACL -ComputerName CLIENT01 -ShareName MyShare -Recurse
+```
+Returns the file/folder ACLs for all files/folders recursively inside the MyShare Share on the CLIENT01 machine.
+
+
+### Get-ACLPathFileACL
+#### SYNOPSIS
+Gets all the file/folder ACLs defined within a specified Path.
+
+#### DESCRIPTION 
+This function will return a list of file/folder ACLs for the specified share. If the Recurse switch is used then files/folder ACLs will be scanned recursively. If the IncludeInherited switch is set then inherited file/folder permissions will also be returned, otherwise only non-inherited permissions will be returned. 
+     
+#### PARAMETER Path
+This is the path to pull the file/folder ACLs for.
+
+#### PARAMETER Recurse
+Setting this switch will cause the file/folder ACLs to be pulled recursively.
+
+#### PARAMETER IncludeInherited
+Setting this switch will cause the non inherited file/folder ACLs to be pulled recursively.
+
+#### EXAMPLE 
+```powershell
+Get-ACLPathFileACL -Path C:\Users
+```
+Returns the file/folder ACLs for the root of C:\Users folder.
+
+#### EXAMPLE 
+```powershell
+Get-ACLPathFileACL -Path C:\Users -Recurse
+```
+Returns the file/folder ACLs for all files/folders recursively inside the C:\Users folder.
+
+   
 Versions
 --------
-### 1.3.0.0   
+### 1.30.0.0   
 * 2016-02-09: Moved to new repo.
 * 2016-02-09: Updated to support NTFSSecurity 4.0.0.0 module and above.
 * 2016-02-09: Added IncludeInherited switch to some cmdlets.
+* 2016-02-09: Documentation updated.
 
 ### 1.21.0.0
 * 2015-05-13: Added Cmdlet for Exporting Diff Report as HTML
