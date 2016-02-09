@@ -25,11 +25,13 @@ If (-not (Test-Path -Path $Global:TestPath -PathType Container)) {
 }
 
 [String[]] $Global:SharePaths = @()
+[String[]] $Global:ShareNames = @()
 # Create shares used for testing and add files to them
 1..$Global:MaxShares | Foreach-Object {
     $ShareName = "Share$($_)"
     $SharePath = Join-Path -Path $Global:TestPath -ChildPath $ShareName
     Write-Verbose -Message "Creating share path '$SharePath'"
+    $Global:ShareNames += $ShareName
     $Global:SharePaths += $SharePath
     If (-not (Test-Path $SharePath -PathType Container)) {
         $null = New-Item `
@@ -97,14 +99,14 @@ try
     InModuleScope ACLReportTools {
         #region Integration Tests
         Describe "New-ACLPathFileReport" {
-            Context "Non-inherited permissions only" {
+            Context "Create using Non-inherited permissions only" {
                 It 'Should not throw exception' {
                     {
                         $Global:NonInheritedPathFileReport = New-ACLPathFileReport -Path $Global:SharePaths
                     } | Should Not Throw
                 }
             }
-            Context "All permissions" {
+            Context "Create using All permissions" {
                 It 'Should not throw exception' {
                     {
                         $Global:AllPathFileReport = New-ACLPathFileReport -Path $Global:SharePaths -IncludeInherited
@@ -114,45 +116,45 @@ try
         }
         
         Describe "New-ACLShareReport" {
-            Context "Non-inherited permissions only" {
+            Context "Create using Non-inherited permissions only" {
                 It 'Should not throw exception' {
                     {
-                        $Global:NonInheritedShareReport = New-ACLShareReport -ComputerName $ENV:ComputerName
+                        $Global:NonInheritedShareReport = New-ACLShareReport -ComputerName $ENV:ComputerName -Include $ShareNames
                     } | Should Not Throw
                 }
             }
-            Context "All permissions" {
+            Context "Create using All permissions" {
                 It 'Should not throw exception' {
                     {
-                        $Global:AllShareReport = New-ACLShareReport -ComputerName $ENV:ComputerName -IncludeInherited
+                        $Global:AllShareReport = New-ACLShareReport -ComputerName $ENV:ComputerName -Include $ShareNames -IncludeInherited
                     } | Should Not Throw
                 }
             }
         }
 
         Describe "Export-ACLReport" {
-            Context "Path/File report with Non-inherited permissions only" {
+            Context "Export Path/File report with Non-inherited permissions only" {
                 It 'Should not throw exception' {
                     {
                         $Global:NonInheritedPathFileReport | Export-ACLReport -Path (Join-Path -Path $Global:ArtifactPath -ChildPath 'IntegrationTests.PathFileNonInheritedPermissions.Report.acl') -Force
                     } | Should Not Throw
                 }
             }
-            Context "Path/File report with All permissions" {
+            Context "Export Path/File report with All permissions" {
                 It 'Should not throw exception' {
                     {
                         $Global:AllPathFileReport | Export-ACLReport -Path (Join-Path -Path $Global:ArtifactPath -ChildPath 'IntegrationTests.PathFileAllPermissions.Report.acl') -Force
                     } | Should Not Throw
                 }
             }
-            Context "Share report with Non-inherited permissions only" {
+            Context "Export Share report with Non-inherited permissions only" {
                 It 'Should not throw exception' {
                     {
                         $Global:NonInheritedShareReport | Export-ACLReport -Path (Join-Path -Path $Global:ArtifactPath -ChildPath 'IntegrationTests.ShareNonInheritedPermissions.Report.acl') -Force
                     } | Should Not Throw
                 }
             }
-            Context "Share report with All permissions" {
+            Context "Export Share report with All permissions" {
                 It 'Should not throw exception' {
                     {
                         $Global:AllShareReport | Export-ACLReport -Path (Join-Path -Path $Global:ArtifactPath -ChildPath 'IntegrationTests.ShareAllPermissions.Report.acl') -Force
@@ -162,28 +164,28 @@ try
         }
 
         Describe "Import-ACLReport" {
-            Context "Path/File report with Non-inherited permissions only" {
+            Context "Import Path/File report with Non-inherited permissions only" {
                 It 'Should not throw exception' {
                     {
                         $Global:NonInheritedPathFileReportImported = Import-ACLReport -Path (Join-Path -Path $Global:ArtifactPath -ChildPath 'IntegrationTests.PathFileNonInheritedPermissions.Report.acl')
                     } | Should Not Throw
                 }
             }
-            Context "Path/File report with All permissions" {
+            Context "Import Path/File report with All permissions" {
                 It 'Should not throw exception' {
                     {
                         $Global:AllPathFileReportImported = Import-ACLReport -Path (Join-Path -Path $Global:ArtifactPath -ChildPath 'IntegrationTests.PathFileAllPermissions.Report.acl')
                     } | Should Not Throw
                 }
             }
-            Context "Share report with Non-inherited permissions only" {
+            Context "Import Share report with Non-inherited permissions only" {
                 It 'Should not throw exception' {
                     {
                         $Global:NonInheritedShareReportImported = Import-ACLReport -Path (Join-Path -Path $Global:ArtifactPath -ChildPath 'IntegrationTests.ShareNonInheritedPermissions.Report.acl')
                     } | Should Not Throw
                 }
             }
-            Context "Share report with All permissions" {
+            Context "Import Share report with All permissions" {
                 It 'Should not throw exception' {
                     {
                         $Global:AllShareReportImported = Import-ACLReport -Path (Join-Path -Path $Global:ArtifactPath -ChildPath 'IntegrationTests.ShareAllPermissions.Report.acl')
@@ -192,34 +194,162 @@ try
             }
         }
 
-        # Modify the Share information
-        1..$Global:MaxShares | Foreach-Object {
-            $SharePath = Join-Path -Path $Global:TestPath -ChildPath "Share$($_)"
-            Write-Verbose -Message "Adding NTFS Permission to $Global:TestPath AccessRights=FullControl, AppliesTo Filesonly -AccessType Allow -Account $ENV:ComputerName\$env:USERNAME"
-            Add-NTFSAccess -Path $Global:TestPath -AccessRights FullControl -AppliesTo FilesOnly -AccessType Allow -Account "$ENV:ComputerName\$ENV:USERNAME" 
-            If ( $_ -eq 1 ) {
-                Write-Verbose -Message "Setting NTFS Owner to $ENV:ComputerName\$ENV:USERNAME for $SharePath"
-                Set-NTFSOwner -Account "$ENV:ComputerName\$env:USERNAME" -Path $SharePath
+        Describe "Compare-ACLReports" {
+            Context "Compare Imported Path/File report with Non-inherited permissions only" {
+                It 'Should not throw exception' {
+                    {
+                        $Global:Differences = Compare-ACLReports `
+                            -Baseline $Global:NonInheritedPathFileReportImported `
+                            -Path $Global:SharePaths
+                    } | Should Not Throw
+                }
+                It 'Should return no differences' {
+                    $Global:Differences | Should be $null    
+                }
             }
-            If ( $_ -eq 2 ) {
-                Write-Verbose -Message "Editing NTFS Permission to $Global:TestPath AccessRights=FullControl, AppliesTo ThisFolderSubfoldersAndFiles -AccessType Allow -Account BUILTIN\Users"
-                Get-NTFSAccess -Path $SharePath -Account "BUILTIN\Users" | Remove-NTFSAccess
-                Add-NTFSAccess -Path $SharePath -AccessRights FullControl -AppliesTo ThisFolderSubfoldersAndFiles -AccessType Allow -Account "BUILTIN\Users" 
-                Write-Verbose -Message "Removing ACL for $ENV:ComputerName\Administrator on $SharePath"
-                Get-NTFSAccess -Path $SharePath -Account "$ENV:ComputerName\Administrator" | Remove-NTFSAccess
-                Write-Verbose -Message "Revoking Access to Share$($_) for Account BUILTIN\Guests"
-                Revoke-SMBShareAccess -Name "Share$($_)" -AccountName "BUILTIN\Guests" -Force | Out-Null
+            Context "Compare Imported Path/File report with All permissions" {
+                It 'Should not throw exception' {
+                    {
+                        $Global:Differences = Compare-ACLReports `
+                            -Baseline $Global:AllPathFileReportImported `
+                            -Path $Global:SharePaths
+                    } | Should Not Throw
+                }
+                It 'Should return no differences' {
+                    $Global:Differences | Should be $null    
+                }
             }
-            If ( $_ -eq 3 ) {
-                Write-Verbose -Message "Editing NTFS Permission to $Global:TestPath AccessRights=FullControl, AppliesTo ThisFolderSubfoldersAndFiles -AccessType Deny -Account BUILTIN\Guests"
-                Get-NTFSAccess -Path $SharePath -Account "BUILTIN\Guests" | Remove-NTFSAccess
-                Add-NTFSAccess -Path $SharePath -AccessRights Read -AppliesTo ThisFolderSubfoldersAndFiles -AccessType Deny -Account "BUILTIN\Guests"
-                Write-Verbose -Message "Granting Full Access to Share$($_) for Account BUILTIN\Guests"
-                Grant-SMBShareAccess -Name "Share$($_)" -AccountName "BUILTIN\Guests" -AccessRight Full -Force | Out-Null
+            Context "Compare Imported Path/File report with Non-inherited permissions only with All permissions" {
+                It 'Should not throw exception' {
+                    {
+                        $Global:Differences = Compare-ACLReports `
+                            -Baseline $Global:NonInheritedPathFileReportImported `
+                            -Path $Global:SharePaths `
+                            -IncludeInherited
+                    } | Should Not Throw
+                }
+                It 'Should return some differences' {
+                    $Global:Differences | Should not be $null    
+                }
             }
-            If ( $_ -eq 4 ) {
-                Write-Verbose -Message "Removing Share$($_)"
-                Get-SMBShare -Name "Share$($_)" | Remove-SMBShare -Force
+            Context "Compare Imported Share report with Non-inherited permissions only" {
+                It 'Should not throw exception' {
+                    {
+                        $Global:Differences = Compare-ACLReports `
+                            -Baseline $Global:NonInheritedShareReportImported `
+                            -Include $Global:ShareNames
+                    } | Should Not Throw
+                }
+                It 'Should return no differences' {
+                    $Global:Differences | Should be $null    
+                }
+            }
+            Context "Compare Imported Share report with All permissions" {
+                It 'Should not throw exception' {
+                    {
+                        $Global:Differences = Compare-ACLReports `
+                            -Baseline $Global:AllShareReportImported `
+                            -Include $Global:ShareNames `
+                            -IncludeInherited
+                    } | Should Not Throw
+                }
+                It 'Should return no differences' {
+                    $Global:Differences | Should be $null    
+                }
+            }
+            Context "Compare Imported Share report with Non-inherited permissions only with All permissions" {
+                It 'Should not throw exception' {
+                    {
+                        $Global:Differences = Compare-ACLReports `
+                            -Baseline $Global:NonInheritedShareReportImported `
+                            -Include $Global:ShareNames `
+                            -IncludeInherited
+                    } | Should Not Throw
+                }
+                It 'Should return some differences' {
+                    $Global:Differences | Should not be $null    
+                }
+            }
+
+            # Modify the Permission information
+            1..$Global:MaxShares | Foreach-Object {
+                $ShareName = "Share$($_)"
+                $SharePath = Join-Path -Path $Global:TestPath -ChildPath $ShareName
+                Write-Verbose -Message "Adding NTFS Permission to '$SharePath' AccessRights=FullControl, AppliesTo Filesonly -AccessType Allow -Account $ENV:COMPUTERNAME\$ENV:USERNAME"
+                Add-NTFSAccess -Path $Global:TestPath -AccessRights FullControl -AppliesTo FilesOnly -AccessType Allow -Account "$ENV:COMPUTERNAME\$ENV:USERNAME" 
+                If ( $_ -eq 1 ) {
+                    Write-Verbose -Message "Setting NTFS Owner to $ENV:COMPUTERNAME\$ENV:USERNAME for $SharePath"
+                    Set-NTFSOwner -Account "$ENV:COMPUTERNAME\$ENV:USERNAME" -Path $SharePath
+                }
+                If ( $_ -eq 2 ) {
+                    Write-Verbose -Message "Editing NTFS Permission to '$SharePath' AccessRights=FullControl, AppliesTo ThisFolderSubfoldersAndFiles -AccessType Allow -Account BUILTIN\Users"
+                    Get-NTFSAccess -Path $SharePath -Account "BUILTIN\Users" | Remove-NTFSAccess
+                    Add-NTFSAccess -Path $SharePath -AccessRights FullControl -AppliesTo ThisFolderSubfoldersAndFiles -AccessType Allow -Account "BUILTIN\Users" 
+                    Write-Verbose -Message "Removing ACL for $ENV:ComputerName\Administrator on $SharePath"
+                    Get-NTFSAccess -Path $SharePath -Account "$ENV:ComputerName\Administrator" | Remove-NTFSAccess
+                    Write-Verbose -Message "Revoking Access to $ShareName for Account BUILTIN\Guests"
+                    $null = Revoke-SMBShareAccess -Name $ShareName -AccountName "BUILTIN\Guests" -Force
+                }
+                If ( $_ -eq 3 ) {
+                    Write-Verbose -Message "Editing NTFS Permission to '$SharePath' AccessRights=FullControl, AppliesTo ThisFolderSubfoldersAndFiles -AccessType Deny -Account BUILTIN\Guests"
+                    Get-NTFSAccess -Path $SharePath -Account "BUILTIN\Guests" | Remove-NTFSAccess
+                    Add-NTFSAccess -Path $SharePath -AccessRights Read -AppliesTo ThisFolderSubfoldersAndFiles -AccessType Deny -Account "BUILTIN\Guests"
+                    Write-Verbose -Message "Granting Full Access to $ShareName for Account BUILTIN\Guests"
+                    $null = Grant-SMBShareAccess -Name $ShareName -AccountName "BUILTIN\Guests" -AccessRight Full -Force
+                }
+                If ( $_ -eq 4 ) {
+                    Write-Verbose -Message "Removing $ShareName"
+                    Get-SMBShare -Name $ShareName | Remove-SMBShare -Force
+                }
+            }
+
+            Context "Compare Imported Path/File report with Non-inherited permissions only after permissions modified" {
+                It 'Should not throw exception' {
+                    {
+                        $Global:Differences = Compare-ACLReports `
+                            -Baseline $Global:NonInheritedPathFileReportImported `
+                            -Path $Global:SharePaths
+                    } | Should Not Throw
+                }
+                It 'Should return some differences' {
+                    $Global:Differences | Should not be $null    
+                }
+            }
+            Context "Compare Imported Path/File report with All permissions after permissions modified" {
+                It 'Should not throw exception' {
+                    {
+                        $Global:Differences = Compare-ACLReports `
+                            -Baseline $Global:AllPathFileReportImported `
+                            -Path $Global:SharePaths
+                    } | Should Not Throw
+                }
+                It 'Should return some differences' {
+                    $Global:Differences | Should not be $null    
+                }
+            }
+            Context "Compare Imported Share report with Non-inherited permissions only after permissions modified" {
+                It 'Should not throw exception' {
+                    {
+                        $Global:Differences = Compare-ACLReports `
+                            -Baseline $Global:NonInheritedShareReportImported `
+                            -Include $Global:ShareNames
+                    } | Should Not Throw
+                }
+                It 'Should return some differences' {
+                    $Global:Differences | Should not be $null    
+                }
+            }
+            Context "Compare Imported Share report with All permissions after permissions modified" {
+                It 'Should not throw exception' {
+                    {
+                        $Global:Differences = Compare-ACLReports `
+                            -Baseline $Global:AllShareReportImported `
+                            -Include $Global:ShareNames
+                    } | Should Not Throw
+                }
+                It 'Should return some differences' {
+                    $Global:Differences | Should not be $null    
+                }
             }
         }
 
