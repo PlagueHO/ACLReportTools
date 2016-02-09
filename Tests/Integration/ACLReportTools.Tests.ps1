@@ -198,77 +198,77 @@ try
             Context "Compare Imported Path/File report with Non-inherited permissions only" {
                 It 'Should not throw exception' {
                     {
-                        $Global:Differences = Compare-ACLReports `
+                        $Global:NonInheritedPathFileDiffReport = Compare-ACLReports `
                             -Baseline $Global:NonInheritedPathFileReportImported `
                             -Path $Global:SharePaths
                     } | Should Not Throw
                 }
                 It 'Should return no differences' {
-                    $Global:Differences | Should be $null    
+                    $Global:NonInheritedPathFileDiffReport | Should be $null    
                 }
             }
             Context "Compare Imported Path/File report with All permissions" {
                 It 'Should not throw exception' {
                     {
-                        $Global:Differences = Compare-ACLReports `
+                        $Global:AllPathFileDiffReport = Compare-ACLReports `
                             -Baseline $Global:AllPathFileReportImported `
                             -Path $Global:SharePaths `
                             -IncludeInherited
                     } | Should Not Throw
                 }
                 It 'Should return no differences' {
-                    $Global:Differences | Should be $null    
+                    $Global:AllPathFileDiffReport | Should be $null    
                 }
             }
             Context "Compare Imported Path/File report with Non-inherited permissions only with All permissions" {
                 It 'Should not throw exception' {
                     {
-                        $Global:Differences = Compare-ACLReports `
+                        $Global:NonInheritedvsAllPathFileDiffReport = Compare-ACLReports `
                             -Baseline $Global:NonInheritedPathFileReportImported `
                             -Path $Global:SharePaths `
                             -IncludeInherited
                     } | Should Not Throw
                 }
                 It 'Should return some differences' {
-                    $Global:Differences | Should not be $null    
+                    $Global:NonInheritedvsAllPathFileDiffReport | Should not be $null    
                 }
             }
             Context "Compare Imported Share report with Non-inherited permissions only" {
                 It 'Should not throw exception' {
                     {
-                        $Global:Differences = Compare-ACLReports `
+                        $Global:NonInheritedShareDiffReport = Compare-ACLReports `
                             -Baseline $Global:NonInheritedShareReportImported `
                             -Include $Global:ShareNames
                     } | Should Not Throw
                 }
                 It 'Should return no differences' {
-                    $Global:Differences | Should be $null    
+                    $Global:NonInheritedShareDiffReport | Should be $null    
                 }
             }
             Context "Compare Imported Share report with All permissions" {
                 It 'Should not throw exception' {
                     {
-                        $Global:Differences = Compare-ACLReports `
+                        $Global:AllShareDiffReport = Compare-ACLReports `
                             -Baseline $Global:AllShareReportImported `
                             -Include $Global:ShareNames `
                             -IncludeInherited
                     } | Should Not Throw
                 }
                 It 'Should return no differences' {
-                    $Global:Differences | Should be $null    
+                    $Global:AllShareDiffReport | Should be $null    
                 }
             }
             Context "Compare Imported Share report with Non-inherited permissions only with All permissions" {
                 It 'Should not throw exception' {
                     {
-                        $Global:Differences = Compare-ACLReports `
+                        $Global:AllvsNonInheritedPathFileDiffReport = Compare-ACLReports `
                             -Baseline $Global:NonInheritedShareReportImported `
                             -Include $Global:ShareNames `
                             -IncludeInherited
                     } | Should Not Throw
                 }
                 It 'Should return some differences' {
-                    $Global:Differences | Should not be $null    
+                    $Global:AllvsNonInheritedPathFileDiffReport | Should not be $null
                 }
             }
 
@@ -307,49 +307,49 @@ try
             Context "Compare Imported Path/File report with Non-inherited permissions only after permissions modified" {
                 It 'Should not throw exception' {
                     {
-                        $Global:Differences = Compare-ACLReports `
+                        $Global:NonInheritedPathFileModifiedDiffReport = Compare-ACLReports `
                             -Baseline $Global:NonInheritedPathFileReportImported `
                             -Path $Global:SharePaths
                     } | Should Not Throw
                 }
                 It 'Should return some differences' {
-                    $Global:Differences | Should not be $null    
+                    $Global:NonInheritedPathFileModifiedDiffReport | Should not be $null
                 }
             }
             Context "Compare Imported Path/File report with All permissions after permissions modified" {
                 It 'Should not throw exception' {
                     {
-                        $Global:Differences = Compare-ACLReports `
+                        $Global:AllPathFileModifiedDiffReport = Compare-ACLReports `
                             -Baseline $Global:AllPathFileReportImported `
                             -Path $Global:SharePaths
                     } | Should Not Throw
                 }
                 It 'Should return some differences' {
-                    $Global:Differences | Should not be $null    
+                    $Global:AllPathFileModifiedDiffReport | Should not be $null
                 }
             }
             Context "Compare Imported Share report with Non-inherited permissions only after permissions modified" {
                 It 'Should not throw exception' {
                     {
-                        $Global:Differences = Compare-ACLReports `
+                        $Global:NonInheritedShareModifiedDiffReport = Compare-ACLReports `
                             -Baseline $Global:NonInheritedShareReportImported `
                             -Include $Global:ShareNames
                     } | Should Not Throw
                 }
                 It 'Should return some differences' {
-                    $Global:Differences | Should not be $null    
+                    $Global:NonInheritedShareModifiedDiffReport | Should not be $null
                 }
             }
             Context "Compare Imported Share report with All permissions after permissions modified" {
                 It 'Should not throw exception' {
                     {
-                        $Global:Differences = Compare-ACLReports `
+                        $Global:AllShareModifiedDiffReport = Compare-ACLReports `
                             -Baseline $Global:AllShareReportImported `
                             -Include $Global:ShareNames
                     } | Should Not Throw
                 }
                 It 'Should return some differences' {
-                    $Global:Differences | Should not be $null    
+                    $Global:AllShareModifiedDiffReport | Should not be $null
                 }
             }
         }
