@@ -1,9 +1,16 @@
 #region HEADER
-[String] $moduleRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path))
+[String] $Global:ModuleRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path))
 
 # Import Module
-Get-Module -Name ACLReportTools | Remove-Module -Force
-Import-Module -Name (Join-Path -Path $moduleRoot -ChildPath 'ACLReportTools.psm1') -Force
+Import-Module -Name (Join-Path -Path $Global:ModuleRoot -ChildPath 'ACLReportTools.psm1') -Force
+
+# Create the artifact path
+[String] $Global:ArtifactPath = Join-Path -Path $moduleRoot -ChildPath 'Artifacts'
+$null = New-Item `
+    -Path $Global:ArtifactPath `
+    -ItemType Directory `
+    -Force `
+    -ErrorAction SilentlyContinue
 
 Write-Verbose -Message "Preparing for integration test run"
 
@@ -118,6 +125,40 @@ try
                 It 'Should not throw exception' {
                     {
                         $BaselinePathFile4 = New-ACLShareReport -ComputerName $ENV:ComputerName -IncludeInherited
+                    } | Should Not Throw
+                }
+            }
+        }
+
+        Describe "Export-ACLReport" {
+            Context "Path/File report with Non-inherited permissions only" {
+                It 'Should not throw exception' {
+                    {
+                        $BaselinePathFile1 | Export-ACLReport -Path (Join-Path -Path $Global:ArtifactPath -ChildPath 'IntegrationTests.PathFileNonInheritedPermissions.Report.acl') -Force
+                    } | Should Not Throw
+                }
+            }
+            Context "Path/File report with All permissions" {
+                It 'Should not throw exception' {
+                    {
+                        $BaselinePathFile2 | Export-ACLReport -Path (Join-Path -Path $Global:ArtifactPath -ChildPath 'IntegrationTests.PathFileAllPermissions.Report.acl') -Force
+                    } | Should Not Throw
+                }
+            }
+        }
+
+        Describe "Export-ACLReport" {
+            Context "Share report with Non-inherited permissions only" {
+                It 'Should not throw exception' {
+                    {
+                        $BaselinePathFile3 | Export-ACLReport -Path (Join-Path -Path $Global:ArtifactPath -ChildPath 'IntegrationTests.ShareNonInheritedPermissions.Report.acl') -Force
+                    } | Should Not Throw
+                }
+            }
+            Context "Share report with All permissions" {
+                It 'Should not throw exception' {
+                    {
+                        $BaselinePathFile4 | Export-ACLReport -Path (Join-Path -Path $Global:ArtifactPath -ChildPath 'IntegrationTests.ShareAllPermissions.Report.acl') -Force
                     } | Should Not Throw
                 }
             }
