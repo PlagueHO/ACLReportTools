@@ -73,6 +73,9 @@ deploy_script:
           Write-Host "Pushing package $_ as Appveyor artifact"
           Push-AppveyorArtifact $_
       }
+      
+      # Push test artifacts
+      Get-ChildItem "$ProjectRoot\LabBuilder\Artifacts\*.*" | Foreach-Object { Push-AppveyorArtifact $_ }
 
       # If this is a build of the Master branch and not a PR push
       # then publish the Module to the PowerShell Gallery.

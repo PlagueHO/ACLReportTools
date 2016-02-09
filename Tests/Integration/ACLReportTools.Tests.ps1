@@ -145,9 +145,6 @@ try
                     } | Should Not Throw
                 }
             }
-        }
-
-        Describe "Export-ACLReport" {
             Context "Share report with Non-inherited permissions only" {
                 It 'Should not throw exception' {
                     {
@@ -159,6 +156,37 @@ try
                 It 'Should not throw exception' {
                     {
                         $Global:AllShareReport | Export-ACLReport -Path (Join-Path -Path $Global:ArtifactPath -ChildPath 'IntegrationTests.ShareAllPermissions.Report.acl') -Force
+                    } | Should Not Throw
+                }
+            }
+        }
+
+        Describe "Import-ACLReport" {
+            Context "Path/File report with Non-inherited permissions only" {
+                It 'Should not throw exception' {
+                    {
+                        $Global:NonInheritedPathFileReportImported = Import-ACLReport -Path (Join-Path -Path $Global:ArtifactPath -ChildPath 'IntegrationTests.PathFileNonInheritedPermissions.Report.acl')
+                    } | Should Not Throw
+                }
+            }
+            Context "Path/File report with All permissions" {
+                It 'Should not throw exception' {
+                    {
+                        $Global:AllPathFileReportImported = Import-ACLReport -Path (Join-Path -Path $Global:ArtifactPath -ChildPath 'IntegrationTests.PathFileAllPermissions.Report.acl')
+                    } | Should Not Throw
+                }
+            }
+            Context "Share report with Non-inherited permissions only" {
+                It 'Should not throw exception' {
+                    {
+                        $Global:NonInheritedShareReportImported = Import-ACLReport -Path (Join-Path -Path $Global:ArtifactPath -ChildPath 'IntegrationTests.ShareNonInheritedPermissions.Report.acl')
+                    } | Should Not Throw
+                }
+            }
+            Context "Share report with All permissions" {
+                It 'Should not throw exception' {
+                    {
+                        $Global:AllShareReportImported = Import-ACLReport -Path (Join-Path -Path $Global:ArtifactPath -ChildPath 'IntegrationTests.ShareAllPermissions.Report.acl')
                     } | Should Not Throw
                 }
             }
