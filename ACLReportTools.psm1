@@ -566,38 +566,40 @@ Function Compare-ACLReports
                                     # Check it's the same though
                                     if ($c_filesystemrights -ne $b_filesystemrights)
                                     {
-
                                         # The Permission rights are different
-                                        Write-Verbose -Message "Share permission rights changed from '$b_filesystemrights' to '$c_filesystemrights' for '$c_identityreference'."
+                                        $DiffMessage = "Share permission rights changed from '$b_filesystemrights' to '$c_filesystemrights' for '$c_identityreference'."                                    
+                                        Write-Verbose -Message $DiffMessage
                                         $Comparison += New-PermissionDiffObject `
                                             -Type ([ACLReportTools.PermissionTypeEnum]::Share) `
                                             -DiffType ([ACLReportTools.PermissionDiffEnum]::'Permission Rights Changed') `
                                             -ComputerName $Current_Computer -Share $Current_Share `
-                                            -Difference "Share permission rights changed from '$b_filesystemrights' to '$c_filesystemrights' for '$c_identityreference'."                                        
+                                            -Difference $DiffMessage                                        
                                         $changes = $true
 
                                     }
                                     elseif ($c_accesscontroltype -ne $b_accesscontroltype)
                                     {
                                         # The Permission access control type is different
-                                        Write-Verbose -Message "Share permission access control type changed from '$b_accesscontroltype' to '$c_accesscontroltype' for '$c_identityreference'."
+                                        $DiffMessage = "Share permission '$c_filesystemrights $c_accesscontroltype' for '$c_identityreference' added."                                    
+                                        Write-Verbose -Message $DiffMessage
                                         $Comparison += New-PermissionDiffObject `
                                             -Type ([ACLReportTools.PermissionTypeEnum]::Share) `
                                             -DiffType ([ACLReportTools.PermissionDiffEnum]::'Permission Access Control Changed') `
                                             -ComputerName $Current_Computer -Share $Current_Share `
-                                            -Difference "Share permission access control type changed from '$b_accesscontroltype' to '$c_accesscontroltype' for '$c_identityreference'."
+                                            -Difference $DiffMessage
                                         $changes = $true
                                     } # If
                                 }
                                 else
                                 {
                                     # The ACL wasn't found in the baseline so it must be newly added
-                                    Write-Verbose -Message "Share permission '$c_filesystemrights $c_accesscontroltype' for '$c_identityreference' added."
+                                    $DiffMessage = "Share permission '$c_filesystemrights $c_accesscontroltype' for '$c_identityreference' added."                                    
+                                    Write-Verbose -Message $DiffMessage
                                     $Comparison += New-PermissionDiffObject `
                                         -Type ([ACLReportTools.PermissionTypeEnum]::Share) `
                                         -DiffType ([ACLReportTools.PermissionDiffEnum]::'Permission Added') `
                                         -ComputerName $Current_Computer -Share $Current_Share `
-                                        -Difference "Share permission '$c_filesystemrights $c_accesscontroltype' for '$c_identityreference' added."
+                                        -Difference $DiffMessage
                                     $changes = $true
                                 } # If
                             } # Foreach
@@ -625,12 +627,13 @@ Function Compare-ACLReports
                                 if (-not $acl_found)
                                 {
                                     # The IdentityReference (user) exists in the Baseline but not in the Current
-                                    Write-Verbose -Message "Share permission '$b_filesystemrights $b_accesscontroltype' for '$b_identityreference' removed."
+                                    $DiffMessage = "Share permission '$b_filesystemrights $b_accesscontroltype' for '$b_identityreference' removed."
+                                    Write-Verbose -Message $DiffMessage
                                     $Comparison += New-PermissionDiffObject `
                                         -Type ([ACLReportTools.PermissionTypeEnum]::Share) `
                                         -DiffType ([ACLReportTools.PermissionDiffEnum]::'Permission Removed') `
                                         -ComputerName $Current_Computer -Share $Current_Share `
-                                        -Difference "Share permission '$b_filesystemrights $b_accesscontroltype' for '$b_identityreference' removed."
+                                        -Difference $DiffMessage
                                     $changes = $true
                                 } # If
                             } # Foreach
@@ -648,6 +651,7 @@ Function Compare-ACLReports
                                 # Put all the Current File ACL props into variables for easy access.
                                 [string]$c_path = $current_file_acl.Path
                                 [string]$c_owner = $current_file_acl.Owner
+                                [string]$c_inherited = $current_file_acl.Inherited
                                 $c_access = $current_file_acl.Access
                                 [string]$c_accesscontroltype = $c_access.AccessControlType
                                 [string]$c_filesystemrights = $c_access.AccessRights
@@ -658,6 +662,7 @@ Function Compare-ACLReports
                                 {
                                     [string]$b_path = $baseline_file_acl.Path
                                     [string]$b_owner = $baseline_file_acl.Owner
+                                    [string]$b_inherited = $baseline_file_acl.Inherited
                                     $b_access = $baseline_file_acl.Access
                                     [string]$b_accesscontroltype = $b_access.AccessControlType
                                     [string]$b_filesystemrights = $b_access.AccessRights
@@ -672,15 +677,30 @@ Function Compare-ACLReports
                                             if ($c_owner -ne $b_owner)
                                             {
                                                 # The Permission Owner are different
-                                                Write-Verbose -Message "$([ACLReportTools.PermissionTypeEnum]$current_file_acl.Type) $c_path owner changed from '$b_owner' to '$c_owner'."
+                                                $DiffMessage = "$([ACLReportTools.PermissionTypeEnum]$current_file_acl.Type) $c_path owner changed from '$b_owner' to '$c_owner'."
+                                                Write-Verbose -Message $DiffMessage
                                                 $Comparison += New-PermissionDiffObject `
                                                     -Type ($current_file_acl.Type) `
                                                     -Path $c_path `
                                                     -DiffType ([ACLReportTools.PermissionDiffEnum]::'Owner Changed') `
                                                     -ComputerName $Current_Computer -Share $Current_Share `
-                                                    -Difference "$([ACLReportTools.PermissionTypeEnum]$current_file_acl.Type) $c_path owner changed from '$b_owner' to '$c_owner'."
+                                                    -Difference $DiffMessage
                                                 $changes = $true
                                             } # If
+                                            
+                                            if ($c_inherited -ne $b_inherited)
+                                            {
+                                                # The inheritance is different
+                                                $DiffMessage = "$([ACLReportTools.PermissionTypeEnum]$current_file_acl.Type) $c_path inheritance changed from '$b_inheritance' to '$c_inheritance'."
+                                                Write-Verbose -Message $DiffMessage
+                                                $Comparison += New-PermissionDiffObject `
+                                                    -Type ($current_file_acl.Type) `
+                                                    -Path $c_path `
+                                                    -DiffType ([ACLReportTools.PermissionDiffEnum]::'Inheritance Changed') `
+                                                    -ComputerName $Current_Computer -Share $Current_Share `
+                                                    -Difference $DiffMessage
+                                                $changes = $true                                                
+                                            }
 
                                             $last_path = $c_path
                                         } # If
@@ -701,39 +721,41 @@ Function Compare-ACLReports
                                     if ($c_filesystemrights -ne $b_filesystemrights)
                                     {
                                         # The Permission rights are different
-                                        Write-Verbose -Message "$([ACLReportTools.PermissionTypeEnum]$current_file_acl.Type) $c_path permission rights changed from '$b_filesystemrights' to '$c_filesystemrights' for '$c_identityreference'."
+                                        $DiffMessage = "$([ACLReportTools.PermissionTypeEnum]$current_file_acl.Type) $c_path permission rights changed from '$b_filesystemrights' to '$c_filesystemrights' for '$c_identityreference'."
+                                        Write-Verbose -Message $DiffMessage
                                         $Comparison += New-PermissionDiffObject `
                                             -Type ($current_file_acl.Type) `
                                             -Path $c_path `
                                             -DiffType ([ACLReportTools.PermissionDiffEnum]::'Permission Rights Changed') `
                                             -ComputerName $Current_Computer -Share $Current_Share `
-                                            -Difference "$([ACLReportTools.PermissionTypeEnum]$current_file_acl.Type) $c_path permission rights changed from '$b_filesystemrights' to '$c_filesystemrights' for '$c_identityreference'."                                        
+                                            -Difference $DiffMessage                                        
                                         $changes = $true
                                     } # If
 									if ($c_accesscontroltype -ne $b_accesscontroltype)
                                     {
                                         # The Permission access control type is different
-                                        Write-Verbose -Message "$([ACLReportTools.PermissionTypeEnum]$current_file_acl.Type) $c_path permission access control type changed from '$b_accesscontroltype' to '$c_accesscontroltype' for '$c_identityreference'."
+                                        $DiffMessage = "$([ACLReportTools.PermissionTypeEnum]$current_file_acl.Type) $c_path permission access control type changed from '$b_accesscontroltype' to '$c_accesscontroltype' for '$c_identityreference'."
+                                        Write-Verbose -Message $DiffMessage
                                         $Comparison += New-PermissionDiffObject `
                                             -Type ($current_file_acl.Type) `
                                             -Path $c_path `
                                             -DiffType ([ACLReportTools.PermissionDiffEnum]::'Permission Access Control Changed') `
                                             -ComputerName $Current_Computer -Share $Current_Share `
-                                            -Difference "$([ACLReportTools.PermissionTypeEnum]$current_file_acl.Type) $c_path permission access control type changed from '$b_accesscontroltype' to '$c_accesscontroltype' for '$c_identityreference'."
+                                            -Difference $DiffMessage
                                         $changes = $true
-
                                     } # If
                                 }
                                 else
                                 {
                                     # The Permission was not found in the baseline so it must have been added
-                                    Write-Verbose -Message "$([ACLReportTools.PermissionTypeEnum]$current_file_acl.Type) $c_path permission '$c_filesystemrights, $c_accesscontroltype, $c_appliesto' added for '$c_identityreference'."
+                                    $DiffMessage = "$([ACLReportTools.PermissionTypeEnum]$current_file_acl.Type) $c_path permission '$c_filesystemrights, $c_accesscontroltype, $c_appliesto' added for '$c_identityreference'."
+                                    Write-Verbose -Message $DiffMessage
                                     $Comparison += New-PermissionDiffObject `
                                         -Type ($current_file_acl.Type) `
                                         -Path $c_path `
                                         -DiffType ([ACLReportTools.PermissionDiffEnum]::'Permission Added') `
                                         -ComputerName $Current_Computer -Share $Current_Share `
-                                        -Difference "$([ACLReportTools.PermissionTypeEnum]$current_file_acl.Type) $c_path permission '$c_filesystemrights, $c_accesscontroltype, $c_appliesto' added for '$c_identityreference'."
+                                        -Difference $DiffMessage
                                     $changes = $true
                                 } # If
                             } # Foreach
@@ -768,13 +790,14 @@ Function Compare-ACLReports
                                 if (-not $acl_found)
                                 {
                                     # The IdentityReference (user) and path exists in the Baseline but not in the Current
-                                    Write-Verbose -Message "$([ACLReportTools.PermissionTypeEnum]$baseline_file_acl.Type) $b_path permission '$b_filesystemrights, $b_accesscontroltype, $b_appliesto' removed for '$b_identityreference'."
+                                    $DiffMessage = "$([ACLReportTools.PermissionTypeEnum]$baseline_file_acl.Type) $b_path permission '$b_filesystemrights, $b_accesscontroltype, $b_appliesto' removed for '$b_identityreference'."
+                                    Write-Verbose -Message $DiffMessage
                                     $Comparison += New-PermissionDiffObject `
                                         -Type ($baseline_file_acl.Type) `
                                         -Path $b_path `
                                         -DiffType ([ACLReportTools.PermissionDiffEnum]::'Permission Removed') `
                                         -ComputerName $Current_Computer -Share $Current_Share `
-                                        -Difference "$([ACLReportTools.PermissionTypeEnum]$baseline_file_acl.Type) $b_path permission '$b_filesystemrights, $b_accesscontroltype, $b_appliesto' removed for '$b_identityreference'."
+                                        -Difference $DiffMessage
                                     $changes = $true
                                 } # If
                             } # Foreach
@@ -782,26 +805,28 @@ Function Compare-ACLReports
                             # If no changes have been made to any of the Share or File/Folder ACLs then say so
                             if (-not $changes)
                             {
-                                Write-Verbose -Message "The share, file and folder permissions for the share $Current_Share on $Current_Computer have not changed."
+                                $DiffMessage = "The share, file and folder permissions for the share $Current_Share on $Current_Computer have not changed."
+                                Write-Verbose -Message $DiffMessage
                                 if ($ReportNoChange)
                                 {
                                     $Comparison += New-PermissionDiffObject `
                                         -Type ([ACLReportTools.PermissionTypeEnum]::Share) `
                                         -DiffType ([ACLReportTools.PermissionDiffEnum]::'No Change') `
                                         -ComputerName $Current_Computer -Share $Current_Share `
-                                        -Difference "The share, file and folder permissions for the share $Current_Share on $Current_Computer have not changed."
+                                        -Difference $DiffMessage
                                 } # If ($ReportNoChange)
                             } # If
                          }
                          else
                          {
                             # The Share exists in the Current but not in the Baseline
-                            Write-Verbose -Message "The share $Current_Share on computer $Current_Computer has been added."
+                            $DiffMessage = "The share $Current_Share on computer $Current_Computer has been added."
+                            Write-Verbose -Message $DiffMessage
                             $Comparison += New-PermissionDiffObject `
                                 -Type ([ACLReportTools.PermissionTypeEnum]::Share) `
                                 -DiffType ([ACLReportTools.PermissionDiffEnum]::'Share Added') `
                                 -ComputerName $Current_Computer -Share $Current_Share `
-                                -Difference "The share $Current_Share on computer $Current_Computer has been added."
+                                -Difference $DiffMessage
  
                             # Get the Current File/Folder ACLs to an Array
                             $Filter = [ScriptBlock]::Create({ ($_.ComputerName -eq $Current_Computer) -and ($_.Share -eq $Current_Share) -and (($_.Type -eq [ACLReportTools.PermissionTypeEnum]::File) -or ($_.Type -eq [ACLReportTools.PermissionTypeEnum]::Folder)) })
@@ -818,13 +843,14 @@ Function Compare-ACLReports
                                 [string]$c_identityreference = $c_access.Account
 
                                 # Because this is a new share, the permission has always been added
-                                Write-Verbose -Message "$($current_file_acl.Type) $c_path permission '$c_filesystemrights, $c_accesscontroltype, $c_appliesto' added for '$c_identityreference'."
+                                $DiffMessage = "$($current_file_acl.Type) $c_path permission '$c_filesystemrights, $c_accesscontroltype, $c_appliesto' added for '$c_identityreference'."
+                                Write-Verbose -Message $DiffMessage
                                 $Comparison += New-PermissionDiffObject `
                                     -Type ($current_file_acl.Type) `
                                     -Path $c_path `
                                     -DiffType ([ACLReportTools.PermissionDiffEnum]::'Permission Added') `
                                     -ComputerName $Current_Computer -Share $Current_Share `
-                                    -Difference "$($current_file_acl.Type) $c_path permission '$c_filesystemrights, $c_accesscontroltype, $c_appliesto' added for '$c_identityreference'."
+                                    -Difference $DiffMessage
                             } # Foreach ($current_file_acl in $current_file_acls)
                          } # If ($baseline_shares -contains $current_share)
                     } # Foreach ($current_share in $current_shares)
@@ -835,23 +861,25 @@ Function Compare-ACLReports
                         if ($current_shares -notcontains $baseline_share)
                         {
                             # Baseline Share does not exist in Current Shares (Share removed)
-                            Write-Verbose -Message "The share $baseline_share on computer $Current_Computer has been removed."
+                            $DiffMessage = "The share $baseline_share on computer $Current_Computer has been removed."
+                            Write-Verbose -Message $DiffMessage
                             $Comparison += New-PermissionDiffObject `
                                 -Type ([ACLReportTools.PermissionTypeEnum]::Share) `
                                 -DiffType ([ACLReportTools.PermissionDiffEnum]::'Share Removed') `
                                 -ComputerName $Current_Computer -Share $baseline_share `
-                                -Difference "The share $baseline_share on computer $Current_Computer has been removed."
+                                -Difference $DiffMessage
                         } # If ($current_shares -notcontains $baseline_share)
                     } # Foreach ($baseline_share in $baseline_shares)
                 }
                 else
                 {
                     # The Computer exists in the Current but not in the Baseline
-                    Write-Verbose -Message "Skiping share comparison of computer $Current_Computer because it was not found in the baseline report."
+                    $DiffMessage = "Skiping share comparison of computer $Current_Computer because it was not found in the baseline report."
+                    Write-Verbose -Message $DiffMessage
                     $Comparison += New-PermissionDiffObject `
                         -DiffType ([ACLReportTools.PermissionDiffEnum]::'Computer Added') `
                         -ComputerName $Current_Computer `
-                        -Difference "The computer $Current_Computer was not found in the baseline report."
+                        -Difference $DiffMessage
                 } # If ($baseline_Computers.Contains($Current_Computer))
             } # Foreach ($Current_Computer in $current_Computers) 
 
@@ -861,11 +889,12 @@ Function Compare-ACLReports
                 if ($current_computers -notcontains $baseline_computer)
                 {
                     # Baseline computer does not exist in Current computer (Computer removed)
-                    Write-Verbose -Message "The computer $Current_Computer has been removed."
+                    $DiffMessage = "The computer $Current_Computer has been removed."
+                    Write-Verbose -Message $DiffMessage
                     $Comparison += New-PermissionDiffObject `
                         -DiffType ([ACLReportTools.PermissionDiffEnum]::'Computer Removed') `
                         -ComputerName $Current_Computer `
-                        -Difference "The computer $Current_Computer has been removed."
+                        -Difference $DiffMessage
 
                 } # If
             } # Foreach ($baseline_computer in $baseline_computers)
@@ -1195,7 +1224,7 @@ function Get-ACLShareFileACL
 					[String]$Owner = (Get-NTFSOwner -Path $Path).Owner.AccountName
 					$lastPath = $access.FullName
 				}            
-                [String] $Inherited = '' 
+                [String] $Inherited = 'Not-inherited' 
 	            if ($IncludeInherited)
                 {
                     if ((Get-NTFSInheritance -Path $Path).AccessInheritanceEnabled)
@@ -1321,7 +1350,7 @@ function Get-ACLPathFileACL
 				[String]$Owner = (Get-NTFSOwner -Path $Path).Owner.AccountName
 				$LastPath = $Path
 			}            
-            [String] $Inherited = '' 
+            [String] $Inherited = 'Not-inherited' 
             if ($IncludeInherited)
             {
                 if ((Get-NTFSInheritance -Path $Path).AccessInheritanceEnabled)
@@ -1741,6 +1770,7 @@ function Initialize-Module
         $EnumBuilder.DefineLiteral('Permission Rights Changed', [Int]7)
         $EnumBuilder.DefineLiteral('Permission Access Control Changed', [Int]8)
         $EnumBuilder.DefineLiteral('Owner Changed', [Int]9)
+        $EnumBuilder.DefineLiteral('Inheritance Changed', [Int]10)
         $PermissionDiffEnumType = $EnumBuilder.CreateType()
 
         # Define the ACLReportTools.PermissionDiff Class

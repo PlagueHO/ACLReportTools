@@ -212,7 +212,8 @@ try
                     {
                         $Global:Differences = Compare-ACLReports `
                             -Baseline $Global:AllPathFileReportImported `
-                            -Path $Global:SharePaths
+                            -Path $Global:SharePaths `
+                            -IncludeInherited
                     } | Should Not Throw
                 }
                 It 'Should return no differences' {
