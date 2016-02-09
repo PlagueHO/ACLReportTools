@@ -75,7 +75,7 @@ deploy_script:
       }
       
       # Push test artifacts
-      Get-ChildItem "$ProjectRoot\ACLReportTools\Artifacts\*.*" | Foreach-Object { Push-AppveyorArtifact $_ }
+      Get-ChildItem -Path (Join-Path -Path $buildFolder -ChildPath 'Artifacts\*.*') | Foreach-Object { Push-AppveyorArtifact $_ }
 
       # If this is a build of the Master branch and not a PR push
       # then publish the Module to the PowerShell Gallery.
