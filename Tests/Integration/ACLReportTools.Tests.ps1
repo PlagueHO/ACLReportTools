@@ -360,35 +360,102 @@ try
 
         Describe "Export-ACLPermissionDiff" {
             Context "Export Path/File Different report with Non-inherited permissions only after permissions modified" {
+                $ReportFileName = (Join-Path -Path $Global:ArtifactPath -ChildPath 'IntegrationTests.PathFileNonInheritedModifiedPermissionsDiff.Report.acr')
                 It 'Should not throw exception' {
                     {
                         $Global:NonInheritedPathFileModifiedDiffReport | Export-ACLPermissionDiff `
-                            -Path (Join-Path -Path $Global:ArtifactPath -ChildPath 'IntegrationTests.PathFileNonInheritedModifiedPermissionsDiff.Report.acr') -Force
+                            -Path $ReportFileName -Force
                     } | Should Not Throw
+                }
+                It 'Should create file' {
+                    Test-Path -Path $ReportFileName | Should be $true
                 }
             }
             Context "Export Path/File Different report with All permissions after permissions modified" {
+                $ReportFileName = (Join-Path -Path $Global:ArtifactPath -ChildPath 'IntegrationTests.PathFileAllModifiedPermissionsDiff.Report.acr')
                 It 'Should not throw exception' {
                     {
                         $Global:AllPathFileModifiedDiffReport | Export-ACLPermissionDiff `
-                            -Path (Join-Path -Path $Global:ArtifactPath -ChildPath 'IntegrationTests.PathFileAllModifiedPermissionsDiff.Report.acr') -Force
+                            -Path $ReportFileName -Force
                     } | Should Not Throw
+                }
+                It 'Should create file' {
+                    Test-Path -Path $ReportFileName | Should be $true
                 }
             }
             Context "Export Path/File Different report with Non-inherited permissions only after permissions modified" {
+                $ReportFileName = (Join-Path -Path $Global:ArtifactPath -ChildPath 'IntegrationTests.ShareNonInheritedModifiedPermissionsDiff.Report.acr')
                 It 'Should not throw exception' {
                     {
                         $Global:NonInheritedShareModifiedDiffReport | Export-ACLPermissionDiff `
-                            -Path (Join-Path -Path $Global:ArtifactPath -ChildPath 'IntegrationTests.ShareNonInheritedModifiedPermissionsDiff.Report.acr') -Force
+                            -Path $ReportFileName -Force
                     } | Should Not Throw
+                }
+                It 'Should create file' {
+                    Test-Path -Path $ReportFileName | Should be $true
                 }
             }
             Context "Export Path/File Different report with All permissions after permissions modified" {
+                $ReportFileName = (Join-Path -Path $Global:ArtifactPath -ChildPath 'IntegrationTests.ShareAllModifiedPermissionsDiff.Report.acr')
                 It 'Should not throw exception' {
                     {
                         $Global:AllShareModifiedDiffReport | Export-ACLPermissionDiff `
-                            -Path (Join-Path -Path $Global:ArtifactPath -ChildPath 'IntegrationTests.ShareAllModifiedPermissionsDiff.Report.acr') -Force                        
+                            -Path $ReportFileName -Force                        
                     } | Should Not Throw
+                }
+                It 'Should create file' {
+                    Test-Path -Path $ReportFileName | Should be $true
+                }
+            }
+        }
+
+        Describe "Export-ACLPermissionDiffHtml" {
+            $ReportFileName = (Join-Path -Path $Global:ArtifactPath -ChildPath 'IntegrationTests.PathFileNonInheritedModifiedPermissionsDiff.Report.htm')
+            Context "Export Path/File Different report with Non-inherited permissions only after permissions modified" {
+                It 'Should not throw exception' {
+                    {
+                        $Global:NonInheritedPathFileModifiedDiffReport | Export-ACLPermissionDiffHtml `
+                            -Path $ReportFileName -Force
+                    } | Should Not Throw
+                }
+                It 'Should create file' {
+                    Test-Path -Path $ReportFileName | Should be $true
+                }
+            }
+            Context "Export Path/File Different report with All permissions after permissions modified" {
+                $ReportFileName = (Join-Path -Path $Global:ArtifactPath -ChildPath 'IntegrationTests.PathFileAllModifiedPermissionsDiff.Report.htm')
+                It 'Should not throw exception' {
+                    {
+                        $Global:AllPathFileModifiedDiffReport | Export-ACLPermissionDiffHtml `
+                            -Path $ReportFileName -Force
+                    } | Should Not Throw
+                }
+                It 'Should create file' {
+                    Test-Path -Path $ReportFileName | Should be $true
+                }
+            }
+            Context "Export Path/File Different report with Non-inherited permissions only after permissions modified" {
+                $ReportFileName = (Join-Path -Path $Global:ArtifactPath -ChildPath 'IntegrationTests.ShareNonInheritedModifiedPermissionsDiff.Report.htm')
+                It 'Should not throw exception' {
+                    {
+                        $Global:NonInheritedShareModifiedDiffReport | Export-ACLPermissionDiffHtml `
+                            -Path $ReportFileName -Force
+                    } | Should Not Throw
+                }
+                It 'Should create file' {
+                    Test-Path -Path $ReportFileName | Should be $true
+                }
+            }
+            Context "Export Path/File Different report with All permissions after permissions modified" {
+                $ReportFileName = (Join-Path -Path $Global:ArtifactPath -ChildPath 'IntegrationTests.ShareAllModifiedPermissionsDiff.Report.htm')
+                It 'Should not throw exception' {
+                    {
+                        $Global:AllShareModifiedDiffReport | Export-ACLPermissionDiffHtml `
+                            -Path $ReportFileName -Force                        
+                    } | Should Not Throw
+                }
+                It 'Should create file' {
+                    Test-Path -Path $ReportFileName | Should be $true
                 }
             }
         }
