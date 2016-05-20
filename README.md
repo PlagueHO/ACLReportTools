@@ -663,7 +663,10 @@ Returns the file/folder ACLs for all files/folders recursively inside the C:\Use
    
 Versions
 --------
-### 1.30.0.0   
+### 1.30.1.0
+* 2016-05-21: Changed module init to check NTFSSecurity module version is v4.0.0 or above.
+
+### 1.30.0.0
 * 2016-02-09: Moved to new repo.
 * 2016-02-09: Updated to support NTFSSecurity 4.0.0.0 module and above.
 * 2016-02-09: Added IncludeInherited switch to some cmdlets.
