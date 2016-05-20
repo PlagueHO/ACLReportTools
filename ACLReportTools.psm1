@@ -1,8 +1,8 @@
 ﻿#Requires -Version 2.0
 
-##########################################################################################################################################
+############################################################################################
 # Data Sections
-##########################################################################################################################################
+############################################################################################
 $Script:Html_Header = Data {
 @'
 <!doctype html><html><head><title>{0}</title>
@@ -51,45 +51,56 @@ $Script:Html_DifferenceLine = Data {
 '@
 }
 
-##########################################################################################################################################
+############################################################################################
 # Main CmdLets
-##########################################################################################################################################
+############################################################################################
 
 
 <#
 .SYNOPSIS
-	Creates a list of Share, File and Folder ACLs for the specified shares/computers.
+    Creates a list of Share, File and Folder ACLs for the specified shares/computers.
 
 .DESCRIPTION 
-	Produces an array of [ACLReportTools.Permission] objects for the computers provided. Specific shares can be specified or excluded using the Include/Exclude parameters.
+    Produces an array of [ACLReportTools.Permission] objects for the computers provided.
+    Specific shares can be specified or excluded using the Include/Exclude parameters.
 
-	The report can be stored for use as a comparison in either a variable or as a file using the Export-ACLReport cmdlet (found in this module). For example:
+    The report can be stored for use as a comparison in either a variable or as a file
+    using the Export-ACLReport cmdlet (found in this module). For example:
 
-	New-ACLShareReport -ComputerName CLIENT01 -Include MyShare,OtherShare | Export-ACLReport -path c:\ACLReports\CLIENT01_2014_11_14.acl
-     
+    New-ACLShareReport -ComputerName CLIENT01 -Include MyShare,OtherShare |
+        Export-ACLReport -path c:\ACLReports\CLIENT01_2014_11_14.acl
+
 .PARAMETER ComputerName
-	This is the computer(s) to create the ACL Share report for. The Computer names can also be passed in via the pipeline.
+    This is the computer(s) to create the ACL Share report for. The Computer names can
+    also be passed in via the pipeline.
 
 .PARAMETER Include
-	This is a list of shares to include from the report. If this parameter is not set it will default to including all shares. This parameter can't be set if the Exclude parameter is set.
+    This is a list of shares to include from the report. If this parameter is not set it
+    will default to including all shares. This parameter can't be set if the Exclude
+    parameter is set.
 
 .PARAMETER Exclude
-	This is a list of shares to exclude from the report. If this parameter is not set it will default to excluding no shares. This parameter can't be set if the Include parameter is set.
+    This is a list of shares to exclude from the report. If this parameter is not set it
+    will default to excluding no shares. This parameter can't be set if the Include
+    parameter is set.
 
 .PARAMETER IncludeInherited
-	Setting this switch will cause the non inherited file/folder ACLs to be pulled recursively.
+    Setting this switch will cause the non inherited file/folder ACLs to be pulled
+    recursively.
 
 .EXAMPLE 
-	New-ACLShareReport -ComputerName CLIENT01
-	Creates a report of all the Share and file/folder ACLs on the CLIENT01 machine.
+    New-ACLShareReport -ComputerName CLIENT01
+    Creates a report of all the Share and file/folder ACLs on the CLIENT01 machine.
 
 .EXAMPLE 
-	New-ACLShareReport -ComputerName CLIENT01 -Include MyShare,OtherShare
-	Creates a report of all the Share and file/folder ACLs on the CLIENT01 machine that are in shares named either MyShare or OtherShare.
+    New-ACLShareReport -ComputerName CLIENT01 -Include MyShare,OtherShare
+    Creates a report of all the Share and file/folder ACLs on the CLIENT01 machine that are
+    in shares named either MyShare or OtherShare.
 
 .EXAMPLE 
-	New-ACLShareReport -ComputerName CLIENT01 -Exclude SysVol
-	Creates a report of all the Share and file/folder ACLs on the CLIENT01 machine that are in shares not named SysVol.
+    New-ACLShareReport -ComputerName CLIENT01 -Exclude SysVol
+    Creates a report of all the Share and file/folder ACLs on the CLIENT01 machine that are
+    in shares not named SysVol.
 #>
 Function New-ACLShareReport
 {
@@ -109,7 +120,7 @@ Function New-ACLShareReport
     begin
     {
         [ACLReportTools.Permission[]]$acls = $null
-		$null = $PSBoundParameters.Remove('includeinherited')
+        $null = $PSBoundParameters.Remove('includeinherited')
     } # Begin
     process
     {
@@ -121,7 +132,7 @@ Function New-ACLShareReport
         }
         else
         {
-            $acls += $Shares | Get-ACLShareFileACL -Recurse -IncludeInherited            
+            $acls += $Shares | Get-ACLShareFileACL -Recurse -IncludeInherited
         }
     } # Process
     end
@@ -133,24 +144,27 @@ Function New-ACLShareReport
 
 <#
 .SYNOPSIS
-	Creates a list of File and Folder ACLs for the provided path(s).
+    Creates a list of File and Folder ACLs for the provided path(s).
 
 .DESCRIPTION 
-	Produces an array of [ACLReportTools.Permission] objects for the list of paths provided.
+    Produces an array of [ACLReportTools.Permission] objects for the list of paths provided.
 
-	The report can be stored for use as a comparison in either a variable or as a file using the Export-ACLReport cmdlet (found in this module). For example:
+    The report can be stored for use as a comparison in either a variable or as a file
+    using the Export-ACLReport cmdlet (found in this module). For example:
 
-	New-ACLPathFileReport -Path e:\public | Export-ACLReport -path c:\ACLReports\Public_2015-04-04.acl
+    New-ACLPathFileReport -Path e:\public |
+        Export-ACLReport -path c:\ACLReports\Public_2015-04-04.acl
      
 .PARAMETER Path
-	This is the path(s) to create the ACL PathFile report for.
+    This is the path(s) to create the ACL PathFile report for.
 
 .PARAMETER IncludeInherited
-	Setting this switch will cause the non inherited file/folder ACLs to be pulled recursively.
+    Setting this switch will cause the non inherited file/folder ACLs to be pulled
+    recursively.
 
 .EXAMPLE 
-	New-ACLPathFileReport -Path e:\public
-	Creates a report of all the file/folder ACLs in the e:\public folder on this machine.
+    New-ACLPathFileReport -Path e:\public
+    Creates a report of all the file/folder ACLs in the e:\public folder on this machine.
 #>
 Function New-ACLPathFileReport
 {
@@ -167,13 +181,13 @@ Function New-ACLPathFileReport
     begin
     {
         [ACLReportTools.Permission[]]$acls = $null
-		$null = $PSBoundParameters.Remove('path')
+        $null = $PSBoundParameters.Remove('path')
     } # Begin
     process
     {
         Foreach ($p in $Path) {
             $acls += Get-ACLPathFileACL -Path $p -Recurse @PSBoundParameters
-		}
+        }
     } # Process
     end
     {
@@ -184,37 +198,47 @@ Function New-ACLPathFileReport
 
 <#
 .SYNOPSIS
-	Export an ACL Report as a file.
+    Export an ACL Report as a file.
 
 .DESCRIPTION 
-	This Cmdlet will save whatever ACL Report that is in the pipeline to a file.
+    This Cmdlet will save whatever ACL Report that is in the pipeline to a file.
 
-	This cmdlet just calls Export-ACLPermission although at some point will add additional functionality.
+    This cmdlet just calls Export-ACLPermission although at some point will add additional
+    functionality.
      
 .PARAMETER Path
-	This is the path to the ACL Permission Report output file. This parameter is required.
+    This is the path to the ACL Permission Report output file. This parameter is required.
 
 .PARAMETER InputObject
-	Specifies the Permissions objects to export to the file. Enter a variable that contains the objects or type a command or expression that gets the objects. You can also pipe ACLReportTools.Permission objects to this cmdlet.
+    Specifies the Permissions objects to export to the file. Enter a variable that contains
+    the objects or type a command or expression that gets the objects. You can also pipe
+    ACLReportTools.Permission objects to this cmdlet.
 
 .PARAMETER Force
-	Causes the file to be overwritten if it exists.
+    Causes the file to be overwritten if it exists.
 
 .EXAMPLE 
-	 New-ACLShareReport -ComputerName CLIENT01 -Include MyShare,OtherShare | Export-ACLReport -path c:\ACLReports\CLIENT01_2014_11_14.acl
-	 Creates a new ACL Share Report for Computer Client01 for the MyShare and OtherShares and exports it to the file C:\ACLReports\CLIENT01_2014_11_14.acl.
+     New-ACLShareReport -ComputerName CLIENT01 -Include MyShare,OtherShare |
+        Export-ACLReport -path c:\ACLReports\CLIENT01_2014_11_14.acl
+     Creates a new ACL Share Report for Computer Client01 for the MyShare and OtherShares
+     and exports it to the file C:\ACLReports\CLIENT01_2014_11_14.acl.
 
 .EXAMPLE 
-	 Export-ACLReport -Path C:\ACLReports\server01.acl -InputObject $ShareReport
-	 Saves the ACLs in the $ShareReport variable to the file C:\ACLReports\server01.acl.
+     Export-ACLReport -Path C:\ACLReports\server01.acl -InputObject $ShareReport
+     Saves the ACLs in the $ShareReport variable to the file C:\ACLReports\server01.acl.
 
 .EXAMPLE 
-	 Export-ACLReport -Path C:\ACLReports\server01.acl -InputObject (New-ACLShareReport -ComputerName SERVER01) -Force
-	 Saves the file ACLs for all shares on the compuer SERVER01 to the file C:\ACLReports\server01.acl. If the file exists it will be overwritten.
+     Export-ACLReport `
+        -Path C:\ACLReports\server01.acl `
+        -InputObject (New-ACLShareReport -ComputerName SERVER01) -Force
+     Saves the file ACLs for all shares on the compuer SERVER01 to the file
+     C:\ACLReports\server01.acl. If the file exists it will be overwritten.
 
 .EXAMPLE 
-	New-ACLShareReport -ComputerName SERVER01 | Export-ACLReport -Path C:\ACLReports\server01.acl -Force
-	Saves the file ACLs for all shares on the compuer SERVER01 to the file C:\ACLReports\server01.acl. If the file exists it will be overwritten.
+    New-ACLShareReport -ComputerName SERVER01 |
+        Export-ACLReport -Path C:\ACLReports\server01.acl -Force
+    Saves the file ACLs for all shares on the compuer SERVER01 to the file
+    C:\ACLReports\server01.acl. If the file exists it will be overwritten.
 #>    
 function Export-ACLReport {
     [CmdLetBinding()]
@@ -235,45 +259,55 @@ function Export-ACLReport {
     ) # param
     begin
     {
-		[ACLReportTools.Permission[]]$InputObjectNew = $Null
-	}
-	process
+        [ACLReportTools.Permission[]]$InputObjectNew = $Null
+    }
+    process
     {
-		foreach ($I in $InputObject)
+        foreach ($I in $InputObject)
         {
-			$InputObjectNew += $I
-		}
-	}
-	end
+            $InputObjectNew += $I
+        }
+    }
+    end
     {
-		[Void]$PSBoundParameters.Remove('InputObject')
-		$InputObjectNew | Export-ACLPermission @PSBoundParameters
-	}
+        [Void]$PSBoundParameters.Remove('InputObject')
+        $InputObjectNew | Export-ACLPermission @PSBoundParameters
+    }
 } # Function Export-ACLReport
 
 
 <#
 .SYNOPSIS
-	Export an ACL Permission Diff Report as a file.
+    Export an ACL Permission Diff Report as a file.
 
 .DESCRIPTION 
-	This Cmdlet will save whatever ACL Permission Diff Report that is in the pipeline to a file.
+    This Cmdlet will save whatever ACL Permission Diff Report that is in the pipeline
+    to a file.
 
-	This cmdlet just calls Export-ACLPermissionDiff although at some point will add additional functionality.
-     
+    This cmdlet just calls Export-ACLPermissionDiff although at some point will add
+    additional functionality.
+
 .PARAMETER Path
-	This is the path to the ACL Permission Diff Report output file. This parameter is required.
+    This is the path to the ACL Permission Diff Report output file. This parameter is
+    required.
 
 .PARAMETER InputObject
-	Specifies the Permissions objects to export to the file. Enter a variable that contains the objects or type a command or expression that gets the objects. You can also pipe ACLReportTools.PermissionDiff objects to Export-ACLReport.
+    Specifies the Permissions objects to export to the file. Enter a variable that contains the
+    objects or type a command or expression that gets the objects. You can also pipe
+    ACLReportTools.PermissionDiff objects to Export-ACLReport.
 
 .PARAMETER Force
-	Causes the file to be overwritten if it exists.
+    Causes the file to be overwritten if it exists.
 
 .EXAMPLE 
-	Compare-ACLReports -Baseline (Import-ACLReports -Path c:\ACLReports\CLIENT01_2014_11_14.acl) -With (Get-ACLReport -ComputerName CLIENT01) | Export-ACLDiffReport -Path "$HOME\Documents\Compare.acr"
-	This will perform a comparison of the current share ACL report from computer CLIENT01 with the stored share ACL report in file c:\ACLReports\CLIENT01_2014_11_14.acl and then export the report file
-	to $HOME\Documents\Compare.acr
+    Compare-ACLReports -Baseline (Import-ACLReports `
+        -Path c:\ACLReports\CLIENT01_2014_11_14.acl) `
+        -With (Get-ACLReport -ComputerName CLIENT01) |
+        Export-ACLDiffReport -Path "$HOME\Documents\Compare.acr"
+    This will perform a comparison of the current share ACL report from computer CLIENT01 with
+    the stored share ACL report in file c:\ACLReports\CLIENT01_2014_11_14.acl and then export
+    the report file
+    to $HOME\Documents\Compare.acr
 #>    
 function Export-ACLDiffReport
 {
@@ -295,38 +329,42 @@ function Export-ACLDiffReport
     ) # param
     begin
     {
-		[ACLReportTools.PermissionDiff[]]$InputObjectNew = $Null
-	}
-	process
+        [ACLReportTools.PermissionDiff[]]$InputObjectNew = $Null
+    }
+    process
     {
-		foreach ($I in $InputObject)
+        foreach ($I in $InputObject)
         {
-			$InputObjectNew += $I
-		}
-	}
-	end
+            $InputObjectNew += $I
+        }
+    }
+    end
     {
-		[Void]$PSBoundParameters.Remove('InputObject')
-		$InputObjectNew | Export-ACLPermissionDiff @PSBoundParameters
-	}
+        [Void]$PSBoundParameters.Remove('InputObject')
+        $InputObjectNew | Export-ACLPermissionDiff @PSBoundParameters
+    }
 } # Function Export-ACLDiffReport
 
 
 <#
 .SYNOPSIS
-	Import the ACL Report that is in a file.
+    Import the ACL Report that is in a file.
 
 .DESCRIPTION 
-	This Cmdlet will import all the ACL Report (ACLReportTools.Permission) objects from a specified file into the pipeline.
+    This Cmdlet will import all the ACL Report (ACLReportTools.Permission) objects from a
+    specified file into the pipeline.
 
-	This cmdlet just calls Import-ACLPermission although at some point will add additional functionality.
-     
+    This cmdlet just calls Import-ACLPermission although at some point will add additional
+    functionality.
+
 .PARAMETER Path
-	This is the path to the ACL Permission Report file to import. This parameter is required.
+    This is the path to the ACL Permission Report file to import. This parameter is
+    required.
 
 .EXAMPLE 
-	Import-ACLReport -Path C:\ACLReports\server01.acl
-	Imports the ACL Share Report from the file C:\ACLReports\server01.acl and puts it into the pipeline
+    Import-ACLReport -Path C:\ACLReports\server01.acl
+    Imports the ACL Share Report from the file C:\ACLReports\server01.acl and puts it
+    into the pipeline
 #>    
 function Import-ACLReport
 {
@@ -346,19 +384,23 @@ function Import-ACLReport
 
 <#
 .SYNOPSIS
-	Import the ACL Difference Report that is in a file.
+    Import the ACL Difference Report that is in a file.
 
 .DESCRIPTION 
-	This Cmdlet will import all the ACL Difference Report (ACLReportTools.PermissionDiff) objects from a specified file into the pipeline.
+    This Cmdlet will import all the ACL Difference Report (ACLReportTools.PermissionDiff)
+    objects from a specified file into the pipeline.
 
-	This cmdlet just calls Import-ACLPermissionDiff although at some point will add additional functionality.
+    This cmdlet just calls Import-ACLPermissionDiff although at some point will add
+    additional functionality.
      
 .PARAMETER Path
-	This is the path to the ACL Permission Report file to import. This parameter is required.
+    This is the path to the ACL Permission Report file to import. This parameter is
+    required.
 
 .EXAMPLE 
-	Import-ACLDiffReport -Path C:\ACLReports\server01.acr
-	Imports the ACL Share Report from the file C:\ACLReports\server01Permission and puts it into the pipeline
+    Import-ACLDiffReport -Path C:\ACLReports\server01.acr
+    Imports the ACL Share Report from the file C:\ACLReports\server01Permission and puts
+    it into the pipeline
 #>    
 function Import-ACLDiffReport
 {
@@ -378,62 +420,91 @@ function Import-ACLDiffReport
 
 <#
 .SYNOPSIS
-	Compares two ACL reports and produces an ACL Difference report.
+    Compares two ACL reports and produces an ACL Difference report.
 
 .DESCRIPTION 
-	This cmdlets compares two ACL Share reports and produces a difference list in the pipeline that can then be reported on.
+    This cmdlets compares two ACL Share reports and produces a difference list in the
+    pipeline that can then be reported on.
 
-	A baseline report (usually from importing a previous ACL Share Report) must be provided. The second ACL Share report (called the current ACL Share report) will be compared against the baseline report.
-	The current ACL report will be either generated by the New-ACLShareReport or New-ACLPathFileReport cmdlets (depending on parameters) or it can be passed in via the With variable.
+    A baseline report (usually from importing a previous ACL Share Report) must be provided.
+    The second ACL Share report (called the current ACL Share report) will be compared
+    against the baseline report.
+    The current ACL report will be either generated by the New-ACLShareReport or
+    New-ACLPathFileReport cmdlets (depending on parameters) or it can be passed in via the
+    With variable.
    
 .PARAMETER Baseline
-	This is the baseline report data the comparison will focus on. It will usually be pulled in from a previously saved Share ACL report via the Import-ACLReports 
+    This is the baseline report data the comparison will focus on. It will usually be
+    pulled in from a previously saved Share ACL report via the Import-ACLReports 
 
 .PARAMETER ComputerName
-	This is the computer(s) to generate the current list of Share ACLs for to perform the comparison with the baseline. The Computer names can also be passed in via the pipeline.
+    This is the computer(s) to generate the current list of Share ACLs for to perform the
+    comparison with the baseline. The Computer names can also be passed in via the pipeline.
 
-	This parameter should not be used if the With Parameter is provided.
+    This parameter should not be used if the With Parameter is provided.
 
 .PARAMETER Include
-	This is a list of shares to include from the comparison. If this parameter is not set it will default to including all shares. This parameter can't be set if the Exclude parameter is set.
+    This is a list of shares to include from the comparison. If this parameter is not set it will
+    default to including all shares. This parameter can't be set if the Exclude parameter is set.
 
-	This parameter should not be used if the With Parameter is provided.
+    This parameter should not be used if the With Parameter is provided.
 
 .PARAMETER Exclude
-	This is a list of shares to exclude from the comparison. If this parameter is not set it will default to excluding no shares. This parameter can't be set if the Include parameter is set.
+    This is a list of shares to exclude from the comparison. If this parameter is not set it will
+    default to excluding no shares. This parameter can't be set if the Include parameter is set.
 
-	This parameter should not be used if the With Parameter is provided.
+    This parameter should not be used if the With Parameter is provided.
 
 .PARAMETER With
-	This parameter provides an ACL Share report to compare with the Baseline ACL Share report.
+    This parameter provides an ACL Share report to compare with the Baseline ACL Share
+    report.
 
-	This parameter should not be used if the ComputerName Parameter is provided.
+    This parameter should not be used if the ComputerName Parameter is provided.
 
 .PARAMETER ReportNoChange
-	Setting this switch will cause a 'No Change' report item to be shown when a share is identical in both the baseline and current reports.
+    Setting this switch will cause a 'No Change' report item to be shown when a share is
+    identical in both the baseline and current reports.
 
 .PARAMETER IncludeInherited
-	Setting this switch will cause the non inherited file/folder ACLs to be pulled recursively.
+    Setting this switch will cause the non inherited file/folder ACLs to be pulled
+    recursively.
 
 .EXAMPLE
-	 Compare-ACLReports -Baseline (Import-ACLReports -Path c:\ACLReports\CLIENT01_2014_11_14.acl) -With (Get-ACLReport -ComputerName CLIENT01)
-	 This will perform a comparison of the current share ACL report from computer CLIENT01 with the stored share ACL report in file c:\ACLReports\CLIENT01_2014_11_14.acl
+     Compare-ACLReports `
+        -Baseline (Import-ACLReports -Path c:\ACLReports\CLIENT01_2014_11_14.acl) `
+        -With (Get-ACLReport -ComputerName CLIENT01)
+     This will perform a comparison of the current share ACL report from computer CLIENT01 with
+     the stored share ACL report in file c:\ACLReports\CLIENT01_2014_11_14.acl
 
 .EXAMPLE
-	 Compare-ACLReports -Baseline (Import-ACLReports -Path c:\ACLReports\CLIENT01_2014_11_14.acl) -ComputerName CLIENT01
-	 This will perform a comparison of the current share ACL report from computer CLIENT01 with the stored share ACL report in file c:\ACLReports\CLIENT01_2014_11_14.acl
+     Compare-ACLReports `
+        -Baseline (Import-ACLReports -Path c:\ACLReports\CLIENT01_2014_11_14.acl) `
+        -ComputerName CLIENT01
+     This will perform a comparison of the current share ACL report from computer CLIENT01 with
+     the stored share ACL report in file c:\ACLReports\CLIENT01_2014_11_14.acl
 
 .EXAMPLE
-	 Compare-ACLReports -Baseline (Import-ACLReports -Path c:\ACLReports\CLIENT01_2014_11_14_SHARE01_ONLY.acl) -ComputerName CLIENT01 -Include SHARE01
-	 This will perform a comparison of the current share ACL report from computer CLIENT01 for only SHARE01 with the stored share ACL report in file c:\ACLReports\CLIENT01_2014_11_14_SHARE01_ONLY.acl
+     Compare-ACLReports `
+        -Baseline (Import-ACLReports -Path c:\ACLReports\CLIENT01_2014_11_14_SHARE01_ONLY.acl) `
+        -ComputerName CLIENT01 `
+        -Include SHARE01
+     This will perform a comparison of the current share ACL report from computer CLIENT01
+     for only SHARE01 with the stored share ACL report in file
+     c:\ACLReports\CLIENT01_2014_11_14_SHARE01_ONLY.acl
 
 .EXAMPLE
-	 "CLIENT01" | Compare-ACLReports -Baseline (Import-ACLReports -Path c:\ACLReports\CLIENT01_2014_11_14.acl)
-	 This will perform a comparison of the current share ACL report from computer CLIENT01 with the stored share ACL report in file c:\ACLReports\CLIENT01_2014_11_14.acl
+     "CLIENT01" | Compare-ACLReports `
+        -Baseline (Import-ACLReports -Path c:\ACLReports\CLIENT01_2014_11_14.acl)
+     This will perform a comparison of the current share ACL report from computer CLIENT01
+     with the stored share ACL report in file c:\ACLReports\CLIENT01_2014_11_14.acl
 
 .EXAMPLE
-	 Compare-ACLReports -Baseline (Import-ACLReports -Path c:\ACLReports\CLIENT01_2014_11_14.acl) -With (Import-ACLReports -Path c:\ACLReports\CLIENT01_2014_06_01.acl)
-	 This will perform a comparison of the share ACL report in file c:\ACLReports\CLIENT01_2014_06_01.acl with the stored share ACL report in file c:\ACLReports\CLIENT01_2014_11_14.acl
+     Compare-ACLReports `
+        -Baseline (Import-ACLReports -Path c:\ACLReports\CLIENT01_2014_11_14.acl) `
+        -With (Import-ACLReports -Path c:\ACLReports\CLIENT01_2014_06_01.acl)
+     This will perform a comparison of the share ACL report in file
+     c:\ACLReports\CLIENT01_2014_06_01.acl with the stored share ACL report in file
+     c:\ACLReports\CLIENT01_2014_11_14.acl
 #>
 Function Compare-ACLReports
 {
@@ -442,7 +513,8 @@ Function Compare-ACLReports
     (
         [Parameter(
             Mandatory=$true)]
-        [ValidateScript( { ($_.GetType() -ne 'ACLReportTools.Permission') -and ($_.GetType() -ne 'Deserialized.ACLReportTools.Permission') } )]
+        [ValidateScript( { ($_.GetType() -ne 'ACLReportTools.Permission') `
+            -and ($_.GetType() -ne 'Deserialized.ACLReportTools.Permission') } )]
         [Object[]]$Baseline,
 
         [Parameter(
@@ -479,31 +551,31 @@ Function Compare-ACLReports
     {
         switch ($PSCmdLet.ParameterSetName)
         {
-			'CompareToCurrentShares' {
-				# A report to compare to wasn't specified so we need to generate
-				# the current report using the other parameters passed.
-				$null = $PSBoundParameters.Remove('Baseline') 
-				$null = $PSBoundParameters.Remove('With')
-				$null = $PSBoundParameters.Remove('ReportNoChange')
-				$null = $PSBoundParameters.Remove('Path')
-				Write-Verbose -Message "Assembling current ACL Share report for comparison."
-				[ACLReportTools.Permission[]]$With += New-ACLShareReport @PSBoundParameters
-				Break
-			}
-			'CompareToCurrentFiles' {
-				# A report to compare to wasn't specified so we need to generate
-				# the current report using the other parameters passed.
-				$null = $PSBoundParameters.Remove('Baseline')
-				$null = $PSBoundParameters.Remove('With')
-				$null = $PSBoundParameters.Remove('ReportNoChange')
-				$null = $PSBoundParameters.Remove('ComputerName')
-				$null = $PSBoundParameters.Remove('Include')
-				$null = $PSBoundParameters.Remove('Exclude')
-				Write-Verbose -Message "Assembling current ACL Path File report for comparison."
-				[ACLReportTools.Permission[]]$With += New-ACLPathFileReport @PSBoundParameters
-				Break
-			}
-		}
+            'CompareToCurrentShares' {
+                # A report to compare to wasn't specified so we need to generate
+                # the current report using the other parameters passed.
+                $null = $PSBoundParameters.Remove('Baseline') 
+                $null = $PSBoundParameters.Remove('With')
+                $null = $PSBoundParameters.Remove('ReportNoChange')
+                $null = $PSBoundParameters.Remove('Path')
+                Write-Verbose -Message 'Assembling current ACL Share report for comparison.'
+                [ACLReportTools.Permission[]]$With += New-ACLShareReport @PSBoundParameters
+                Break
+            }
+            'CompareToCurrentFiles' {
+                # A report to compare to wasn't specified so we need to generate
+                # the current report using the other parameters passed.
+                $null = $PSBoundParameters.Remove('Baseline')
+                $null = $PSBoundParameters.Remove('With')
+                $null = $PSBoundParameters.Remove('ReportNoChange')
+                $null = $PSBoundParameters.Remove('ComputerName')
+                $null = $PSBoundParameters.Remove('Include')
+                $null = $PSBoundParameters.Remove('Exclude')
+                Write-Verbose -Message 'Assembling current ACL Path File report for comparison.'
+                [ACLReportTools.Permission[]]$With += New-ACLPathFileReport @PSBoundParameters
+                Break
+            }
+        }
     } # Process
     end
     {
@@ -512,7 +584,7 @@ Function Compare-ACLReports
         $Current_Computers = $With | Select-Object -ExpandProperty ComputerName -Unique
         if ($Current_Computers.Length -eq 0)
         {
-            Write-Error "No accessible shares were found on the computers specified."
+            Write-Error 'No accessible shares were found on the computers specified.'
             Return
         }
         else
@@ -525,8 +597,12 @@ Function Compare-ACLReports
                 {
                     Write-Verbose -Message "Performing share comparison of computer $Current_Computer."
                     # Assemble the list of shares for the computer
-                    $Current_Shares = $With | Where-Object -Property ComputerName -eq $Current_Computer | Select-Object -ExpandProperty Share -Unique
-                    $Baseline_Shares = $Baseline | Where-Object -Property ComputerName -eq $Current_Computer | Select-Object -ExpandProperty Share -Unique
+                    $Current_Shares = $With |
+                        Where-Object -Property ComputerName -eq $Current_Computer |
+                        Select-Object -ExpandProperty Share -Unique
+                    $Baseline_Shares = $Baseline |
+                        Where-Object -Property ComputerName -eq $Current_Computer |
+                        Select-Object -ExpandProperty Share -Unique
                     foreach ($current_share in $current_shares)
                     {
                          if ($baseline_shares -contains $current_share)
@@ -573,7 +649,7 @@ Function Compare-ACLReports
                                             -Type ([ACLReportTools.PermissionTypeEnum]::Share) `
                                             -DiffType ([ACLReportTools.PermissionDiffEnum]::'Permission Rights Changed') `
                                             -ComputerName $Current_Computer -Share $Current_Share `
-                                            -Difference $DiffMessage                                        
+                                            -Difference $DiffMessage
                                         $changes = $true
 
                                     }
@@ -641,7 +717,8 @@ Function Compare-ACLReports
                             # Perform the baseline to current file/folder ACL comparison
                             $Filter = [ScriptBlock]::Create({ ($_.ComputerName -eq $Current_Computer) `
                                 -and ($_.Share -eq $Current_Share) `
-                                -and (($_.Type -eq [ACLReportTools.PermissionTypeEnum]::File) -or ($_.Type -eq [ACLReportTools.PermissionTypeEnum]::Folder)) })
+                                -and (($_.Type -eq [ACLReportTools.PermissionTypeEnum]::File) `
+                                -or ($_.Type -eq [ACLReportTools.PermissionTypeEnum]::Folder)) })
                             $Current_file_Acls = $With | Where-Object -FilterScript $Filter
                             $Baseline_file_Acls = $Baseline | Where-Object -FilterScript $Filter
                             [string]$last_path = '.'
@@ -671,7 +748,8 @@ Function Compare-ACLReports
                                     if ($c_path -eq $b_path)
                                     {
                                         # Perform an owner check on each file/folder only once
-                                        # If we've already checked this path, don't bother checking the owner again.
+                                        # If we've already checked this path, don't bother
+                                        # checking the owner again.
                                         if ($last_path -ne $c_path)
                                         {
                                             if ($c_owner -ne $b_owner)
@@ -699,14 +777,15 @@ Function Compare-ACLReports
                                                     -DiffType ([ACLReportTools.PermissionDiffEnum]::'Inheritance Changed') `
                                                     -ComputerName $Current_Computer -Share $Current_Share `
                                                     -Difference $DiffMessage
-                                                $changes = $true                                                
+                                                $changes = $true
                                             }
 
                                             $last_path = $c_path
                                         } # If
-                                        # Check that the Identity Reference (user) is the same one
-                                        # And that the Applies To is the same
-                                        if (($c_identityreference -eq $b_identityreference) -and ($c_appliesto -eq $b_appliesto))
+                                        # Check that the Identity Reference (user) is the same
+                                        # one and that the Applies To is the same
+                                        if (($c_identityreference -eq $b_identityreference) `
+                                            -and ($c_appliesto -eq $b_appliesto))
                                         {
                                             $acl_found = $true
                                             break
@@ -716,7 +795,8 @@ Function Compare-ACLReports
                                 
                                 if ($acl_found)
                                 {
-                                    # The IdentityReference (user) and path exists in both the Baseline and the Current ACLs
+                                    # The IdentityReference (user) and path exists in both
+                                    # the Baseline and the Current ACLs
                                     # Check it's the same though
                                     if ($c_filesystemrights -ne $b_filesystemrights)
                                     {
@@ -728,10 +808,10 @@ Function Compare-ACLReports
                                             -Path $c_path `
                                             -DiffType ([ACLReportTools.PermissionDiffEnum]::'Permission Rights Changed') `
                                             -ComputerName $Current_Computer -Share $Current_Share `
-                                            -Difference $DiffMessage                                        
+                                            -Difference $DiffMessage
                                         $changes = $true
                                     } # If
-									if ($c_accesscontroltype -ne $b_accesscontroltype)
+                                    if ($c_accesscontroltype -ne $b_accesscontroltype)
                                     {
                                         # The Permission access control type is different
                                         $DiffMessage = "$([ACLReportTools.PermissionTypeEnum]$current_file_acl.Type) $c_path permission access control type changed from '$b_accesscontroltype' to '$c_accesscontroltype' for '$c_identityreference'."
@@ -747,7 +827,8 @@ Function Compare-ACLReports
                                 }
                                 else
                                 {
-                                    # The Permission was not found in the baseline so it must have been added
+                                    # The Permission was not found in the baseline so it must have
+                                    # been added
                                     $DiffMessage = "$([ACLReportTools.PermissionTypeEnum]$current_file_acl.Type) $c_path permission '$c_filesystemrights, $c_accesscontroltype, $c_appliesto' added for '$c_identityreference'."
                                     Write-Verbose -Message $DiffMessage
                                     $Comparison += New-PermissionDiffObject `
@@ -770,7 +851,9 @@ Function Compare-ACLReports
                                 [string]$b_accesscontroltype = $b_access.AccessControlType
                                 [string]$b_filesystemrights = $b_access.AccessRights
                                 [string]$b_identityreference = $b_access.Account
-                                [string]$b_appliesto = Convert-FileSystemAppliesToString -InheritanceFlags $b_access.InheritanceFlags -PropagationFlags $b_access.PropagationFlags
+                                [string]$b_appliesto = Convert-FileSystemAppliesToString `
+                                    -InheritanceFlags $b_access.InheritanceFlags `
+                                    -PropagationFlags $b_access.PropagationFlags
                                 [boolean]$acl_found = $false
                                 foreach ($current_file_acl in $current_file_acls)
                                 {
@@ -780,7 +863,9 @@ Function Compare-ACLReports
                                     [string]$c_accesscontroltype = $c_access.AccessControlType
                                     [string]$c_filesystemrights = $c_access.AccessRights
                                     [string]$c_identityreference = $c_access.Account
-                                    [string]$c_appliesto = Convert-FileSystemAppliesToString -InheritanceFlags $c_access.InheritanceFlags -PropagationFlags $c_access.PropagationFlags
+                                    [string]$c_appliesto = Convert-FileSystemAppliesToString `
+                                        -InheritanceFlags $c_access.InheritanceFlags `
+                                        -PropagationFlags $c_access.PropagationFlags
                                     if (($c_path -eq $b_path) -and ($c_identityreference -eq $b_identityreference) -and ($c_appliesto -eq $b_appliesto))
                                     {
                                         $acl_found = $true
@@ -789,7 +874,8 @@ Function Compare-ACLReports
                                 } # Foreach
                                 if (-not $acl_found)
                                 {
-                                    # The IdentityReference (user) and path exists in the Baseline but not in the Current
+                                    # The IdentityReference (user) and path exists in the
+                                    # Baseline but not in the Current
                                     $DiffMessage = "$([ACLReportTools.PermissionTypeEnum]$baseline_file_acl.Type) $b_path permission '$b_filesystemrights, $b_accesscontroltype, $b_appliesto' removed for '$b_identityreference'."
                                     Write-Verbose -Message $DiffMessage
                                     $Comparison += New-PermissionDiffObject `
@@ -802,7 +888,8 @@ Function Compare-ACLReports
                                 } # If
                             } # Foreach
 
-                            # If no changes have been made to any of the Share or File/Folder ACLs then say so
+                            # If no changes have been made to any of the Share or File/Folder
+                            # ACLs then say so
                             if (-not $changes)
                             {
                                 $DiffMessage = "The share, file and folder permissions for the share $Current_Share on $Current_Computer have not changed."
@@ -829,7 +916,10 @@ Function Compare-ACLReports
                                 -Difference $DiffMessage
  
                             # Get the Current File/Folder ACLs to an Array
-                            $Filter = [ScriptBlock]::Create({ ($_.ComputerName -eq $Current_Computer) -and ($_.Share -eq $Current_Share) -and (($_.Type -eq [ACLReportTools.PermissionTypeEnum]::File) -or ($_.Type -eq [ACLReportTools.PermissionTypeEnum]::Folder)) })
+                            $Filter = [ScriptBlock]::Create({ ($_.ComputerName -eq $Current_Computer) `
+                                -and ($_.Share -eq $Current_Share) `
+                                -and (($_.Type -eq [ACLReportTools.PermissionTypeEnum]::File) `
+                                -or ($_.Type -eq [ACLReportTools.PermissionTypeEnum]::Folder)) })
                             $Current_file_Acls = $With | Where-Object -FilterScript $Filter
 
                             # Output all the current share ACLs into the report as the share is new all permissions must also be new
@@ -905,47 +995,54 @@ Function Compare-ACLReports
 } # Function Compare-ACLReports
 
 
-##########################################################################################################################################
+####################################################################################################
 # Support CmdLets
-##########################################################################################################################################
+####################################################################################################
 
 <#
 .SYNOPSIS
-	Gets a list of the Shares on a specified computer(s) with specified inclusions or exclusions.
+    Gets a list of the Shares on a specified computer(s) with specified inclusions or exclusions.
 
 .DESCRIPTION 
-	This function will pull a list of shares that are set up on the specified computer. Shares can also be included or excluded from the share list by setting the Include or Exclude properties.
+    This function will pull a list of shares that are set up on the specified computer. Shares
+    can also be included or excluded from the share list by setting the Include or Exclude
+    properties.
 
-	The Cmdlet returns an array of ACLReportTools.Share objects.
+    The Cmdlet returns an array of ACLReportTools.Share objects.
      
 .PARAMETER ComputerName
-	This is the computer to get the shares from. If this parameter is not set it will default to the current machine.
+    This is the computer to get the shares from. If this parameter is not set it will default
+    to the current machine.
 
 .PARAMETER Include
-	This is a list of shares to include from the computer. If this parameter is not set it will default to including all shares. This parameter can't be set if the Exclude parameter is set.
+    This is a list of shares to include from the computer. If this parameter is not set it will
+    default to including all shares. This parameter can't be set if the Exclude parameter is set.
 
 .PARAMETER Exclude
-	This is a list of shares to exclude from the computer. If this parameter is not set it will default to excluding no shares. This parameter can't be set if the Include parameter is set.
+    This is a list of shares to exclude from the computer. If this parameter is not set it will
+    default to excluding no shares. This parameter can't be set if the Include parameter is set.
 
 .EXAMPLE 
-	 Get-ACLShare -ComputerName CLIENT01
-	 Returns a list of all shares set up on the CLIENT01 machine.
+     Get-ACLShare -ComputerName CLIENT01
+     Returns a list of all shares set up on the CLIENT01 machine.
 
 .EXAMPLE 
-	 Get-ACLShare -ComputerName CLIENT01 -Include MyShare,OtherShare
-	 Returns a list of shares that are set up on the CLIENT01 machine that are named either MyShare or OtherShare.
+     Get-ACLShare -ComputerName CLIENT01 -Include MyShare,OtherShare
+     Returns a list of shares that are set up on the CLIENT01 machine that are named either
+     MyShare or OtherShare.
 
 .EXAMPLE 
-	 Get-ACLShare -ComputerName CLIENT01 -Exclude SysVol
-	 Returns a list of shares that are set up on the CLIENT01 machine that are not called SysVol.
+     Get-ACLShare -ComputerName CLIENT01 -Exclude SysVol
+     Returns a list of shares that are set up on the CLIENT01 machine that are not called SysVol.
 
 .EXAMPLE 
-	 Get-ACLShare -ComputerName CLIENT01,CLIENT02
-	 Returns a list of shares that are set up on the CLIENT01 and CLIENT02 machines.
+     Get-ACLShare -ComputerName CLIENT01,CLIENT02
+     Returns a list of shares that are set up on the CLIENT01 and CLIENT02 machines.
 
 .EXAMPLE 
-	 Get-ACLShare -ComputerName CLIENT01,CLIENT02 -Exclude SysVol
-	 Returns a list of shares that are set up on the CLIENT01 and CLIENT02 machines that are not called SysVol.
+     Get-ACLShare -ComputerName CLIENT01,CLIENT02 -Exclude SysVol
+     Returns a list of shares that are set up on the CLIENT01 and CLIENT02 machines that are not
+     called SysVol.
 #>
 Function Get-ACLShare {
     [CmdLetBinding()]
@@ -1015,29 +1112,31 @@ Function Get-ACLShare {
 
 <#
 .SYNOPSIS
-	Gets the ACLs for a specified Share.
+    Gets the ACLs for a specified Share.
 
 .DESCRIPTION 
-	This function will return the share ACLs for the specified share.
+    This function will return the share ACLs for the specified share.
      
 .PARAMETER ComputerName
-	This is the computer to get the share ACLs from. If this parameter is not set it will default to the current machine.
+    This is the computer to get the share ACLs from. If this parameter is not set it will
+    default to the current machine.
 
 .PARAMETER ShareName
-	This is the share name to pull the share ACLs for.
+    This is the share name to pull the share ACLs for.
 
 .PARAMETER Shares
-	This is a pipeline parameter that should be used for passing in a list of shares and computers to pull ACLs for. This parameter expects an array of [ACLReportTools.Share] objects.
+    This is a pipeline parameter that should be used for passing in a list of shares and
+    computers to pull ACLs for. This parameter expects an array of [ACLReportTools.Share] objects.
 
-	This parameter is usually used with the Get-ACLShare CmdLet.
+    This parameter is usually used with the Get-ACLShare CmdLet.
 
-	For example:
+    For example:
 
-	Get-ACLShare -ComputerName CLIENT01,CLIENT02 -Exclude SYSVOL | Get-ACLShareACL 
+    Get-ACLShare -ComputerName CLIENT01,CLIENT02 -Exclude SYSVOL | Get-ACLShareACL 
 
 .EXAMPLE 
-	Get-ACLShareACL -ComputerName CLIENT01 -ShareName MyShre
-	Returns the share ACLs for the MyShare Share on the CLIENT01 machine.
+    Get-ACLShareACL -ComputerName CLIENT01 -ShareName MyShre
+    Returns the share ACLs for the MyShare Share on the CLIENT01 machine.
 #>
 function Get-ACLShareACL
 {
@@ -1071,7 +1170,10 @@ function Get-ACLShareACL
             $ComputerName = $_.ComputerName
             $ShareName = $_.Name
         }
-        $objShareSec = Get-WMIObject -Class Win32_LogicalShareSecuritySetting -Filter "name='$ShareName'"  -ComputerName $ComputerName 
+        $objShareSec = Get-WMIObject `
+            -Class Win32_LogicalShareSecuritySetting `
+            -Filter "name='$ShareName'" `
+            -ComputerName $ComputerName 
         try
         {  
             $SD = $objShareSec.GetSecurityDescriptor().Descriptor
@@ -1104,30 +1206,30 @@ function Get-ACLShareACL
 
 <#
 .SYNOPSIS
-	Gets all the file/folder ACLs definited within a specified Share.
+    Gets all the file/folder ACLs definited within a specified Share.
 
 .DESCRIPTION 
-	This function will return a list of file/folder ACLs for the specified share. If the Recurse switch is used then files/folder ACLs will be scanned recursively. If the IncludeInherited switch is set then inherited file/folder permissions will also be returned, otherwise only non-inherited permissions will be returned. 
+    This function will return a list of file/folder ACLs for the specified share. If the Recurse switch is used then files/folder ACLs will be scanned recursively. If the IncludeInherited switch is set then inherited file/folder permissions will also be returned, otherwise only non-inherited permissions will be returned. 
      
 .PARAMETER ComputerName
-	This is the computer to get the share ACLs from. If this parameter is not set it will default to the current machine.
+    This is the computer to get the share ACLs from. If this parameter is not set it will default to the current machine.
 
 .PARAMETER ShareName
-	This is the share name to pull the file/folder ACLs for.
+    This is the share name to pull the file/folder ACLs for.
 
 .PARAMETER Recurse
-	Setting this switch will cause the file/folder ACLs to be pulled recursively.
+    Setting this switch will cause the file/folder ACLs to be pulled recursively.
 
 .PARAMETER IncludeInherited
-	Setting this switch will cause the non inherited file/folder ACLs to be pulled recursively.
+    Setting this switch will cause the non inherited file/folder ACLs to be pulled recursively.
 
 .EXAMPLE 
-	Get-ACLShareFileACL -ComputerName CLIENT01 -ShareName MyShare
-	Returns the file/folder ACLs for the root of MyShare Share on the CLIENT01 machine.
+    Get-ACLShareFileACL -ComputerName CLIENT01 -ShareName MyShare
+    Returns the file/folder ACLs for the root of MyShare Share on the CLIENT01 machine.
 
 .EXAMPLE 
-	Get-ACLShareFileACL -ComputerName CLIENT01 -ShareName MyShare -Recurse
-	Returns the file/folder ACLs for all files/folders recursively inside the MyShare Share on the CLIENT01 machine.
+    Get-ACLShareFileACL -ComputerName CLIENT01 -ShareName MyShare -Recurse
+    Returns the file/folder ACLs for all files/folders recursively inside the MyShare Share on the CLIENT01 machine.
 #>    
 function Get-ACLShareFileACL
 {
@@ -1166,12 +1268,12 @@ function Get-ACLShareFileACL
             $ShareName = $_.Name
         }
         # Now generate the root file/folder ACLs
-		$Path = "\\$ComputerName\$ShareName"   
-		[Security2.FileSystemAccessRule2[]]$root_file_acl = Get-NTFSAccess -Path $path
-		[String]$owner = (Get-NTFSOwner -Path $path).Owner.AccountName
+        $Path = "\\$ComputerName\$ShareName"   
+        [Security2.FileSystemAccessRule2[]]$root_file_acl = Get-NTFSAccess -Path $path
+        [String]$owner = (Get-NTFSOwner -Path $path).Owner.AccountName
         foreach ($access in $root_file_acl)
         {
-			# Write each non-inherited ACL from the root into the array of ACL's 
+            # Write each non-inherited ACL from the root into the array of ACL's 
             if ($access.IsInherited)
             {
                 [String] $Inherited = "Inherited from $($access.InheritedFrom)" 
@@ -1180,7 +1282,7 @@ function Get-ACLShareFileACL
             {
                 [String] $Inherited = 'Not-inherited'                    
             }
-			$file_acls += New-PermissionObject `
+            $file_acls += New-PermissionObject `
                 -ComputerName $ComputerName `
                 -Type ([ACLReportTools.PermissionTypeEnum]::Folder) `
                 -Path $Path `
@@ -1188,46 +1290,46 @@ function Get-ACLShareFileACL
                 -Access $access `
                 -Share $ShareName `
                 -Inherited $Inherited
-			Write-Verbose -Message "Get-ACLShareFileACL: Root ACL for $ShareName path $Path owner $Owner`n$(Convert-AccessToString($Access))"
+            Write-Verbose -Message "Get-ACLShareFileACL: Root ACL for $ShareName path $Path owner $Owner`n$(Convert-AccessToString($Access))"
         } # Foreach
         if ($Recurse)
         {
             # Generate all file/folder ACLs for subfolders and/or files containined within the share recursively
             $node_file_acls = Get-childitem -Path $Path -recurse |
                 Get-NTFSAccess              
-	        if (! $IncludeInherited)
+            if (! $IncludeInherited)
             {
                 # Generate any non-inferited file/folder ACLs for subfolders and/or files containined within the share recursively
                 $node_file_acls = $node_file_acls | Where-Object -Property IsInherited -eq $False    
             }
-	        $lastPath = ''
-			foreach ($access in $node_file_acls)
+            $lastPath = ''
+            foreach ($access in $node_file_acls)
             {
-				# Write each non-inherited ACL from the file/folder into the array of ACL's 
-				$Path = $access.FullName
-				if ($lastPath -ne $Path)
+                # Write each non-inherited ACL from the file/folder into the array of ACL's 
+                $Path = $access.FullName
+                if ($lastPath -ne $Path)
                 {
-					try
+                    try
                     {
-						[Boolean]$IsFolder = ((Get-Item -Path $Path -ErrorAction "Stop") -is [System.IO.DirectoryInfo])
-					}
+                        [Boolean]$IsFolder = ((Get-Item -Path $Path -ErrorAction 'Stop') -is [System.IO.DirectoryInfo])
+                    }
                     catch
                     {
-						Write-Warning "Get-ACLPathFileACL: Access Denied to $Path"
-						$IsFolder = $True
-					}
-					if ($IsFolder)
+                        Write-Warning "Get-ACLPathFileACL: Access Denied to $Path"
+                        $IsFolder = $True
+                    }
+                    if ($IsFolder)
                     {
-						$type = [ACLReportTools.PermissionTypeEnum]::Folder
-					}
+                        $type = [ACLReportTools.PermissionTypeEnum]::Folder
+                    }
                     else
                     {
-						$type = [ACLReportTools.PermissionTypeEnum]::File
-					}
-					[String]$Owner = (Get-NTFSOwner -Path $Path).Owner.AccountName
-					$lastPath = $access.FullName
-				}            
-	            if ($IncludeInherited -and $access.IsInherited)
+                        $type = [ACLReportTools.PermissionTypeEnum]::File
+                    }
+                    [String]$Owner = (Get-NTFSOwner -Path $Path).Owner.AccountName
+                    $lastPath = $access.FullName
+                }            
+                if ($IncludeInherited -and $access.IsInherited)
                 {
                     [String] $Inherited = "Inherited from $($access.InheritedFrom)" 
                 }
@@ -1243,8 +1345,8 @@ function Get-ACLShareFileACL
                     -Access $access `
                     -Share $ShareName `
                     -Inherited $Inherited
-				Write-Verbose -Message "Get-ACLShareFileACL: $Inherited ACL for $ShareName path $Path owner $Owner`n$(Convert-AccessToString($Access))"
-			} # Foreach
+                Write-Verbose -Message "Get-ACLShareFileACL: $Inherited ACL for $ShareName path $Path owner $Owner`n$(Convert-AccessToString($Access))"
+            } # Foreach
         } # If
     } # Process
     end
@@ -1256,27 +1358,27 @@ function Get-ACLShareFileACL
 
 <#
 .SYNOPSIS
-	Gets all the file/folder ACLs defined within a specified Path.
+    Gets all the file/folder ACLs defined within a specified Path.
 
 .DESCRIPTION 
-	This function will return a list of file/folder ACLs for the specified share. If the Recurse switch is used then files/folder ACLs will be scanned recursively. If the IncludeInherited switch is set then inherited file/folder permissions will also be returned, otherwise only non-inherited permissions will be returned. 
+    This function will return a list of file/folder ACLs for the specified share. If the Recurse switch is used then files/folder ACLs will be scanned recursively. If the IncludeInherited switch is set then inherited file/folder permissions will also be returned, otherwise only non-inherited permissions will be returned. 
      
 .PARAMETER Path
-	This is the path to pull the file/folder ACLs for.
+    This is the path to pull the file/folder ACLs for.
 
 .PARAMETER Recurse
-	Setting this switch will cause the file/folder ACLs to be pulled recursively.
+    Setting this switch will cause the file/folder ACLs to be pulled recursively.
 
 .PARAMETER IncludeInherited
-	Setting this switch will cause the non inherited file/folder ACLs to be pulled recursively.
+    Setting this switch will cause the non inherited file/folder ACLs to be pulled recursively.
 
 .EXAMPLE 
-	Get-ACLPathFileACL -Path C:\Users
-	Returns the file/folder ACLs for the root of C:\Users folder.
+    Get-ACLPathFileACL -Path C:\Users
+    Returns the file/folder ACLs for the root of C:\Users folder.
 
 .EXAMPLE 
-	Get-ACLPathFileACL -Path C:\Users -Recurse
-	Returns the file/folder ACLs for all files/folders recursively inside the C:\Users folder.
+    Get-ACLPathFileACL -Path C:\Users -Recurse
+    Returns the file/folder ACLs for all files/folders recursively inside the C:\Users folder.
 #>    
 function Get-ACLPathFileACL
 {
@@ -1294,10 +1396,10 @@ function Get-ACLPathFileACL
 
     # Create an empty array to store all the non inherited file/folder ACLs.
     [ACLReportTools.Permission[]]$file_acls = $null
-	[String]$ComputerName = $ENV:ComputerName
+    [String]$ComputerName = $ENV:ComputerName
 
     # Now generate the root file/folder ACLs
-	[Security2.FileSystemAccessRule2[]]$root_file_acl = Get-NTFSAccess -Path $path
+    [Security2.FileSystemAccessRule2[]]$root_file_acl = Get-NTFSAccess -Path $path
     [String]$owner = (Get-NTFSOwner -Path $path).Owner.AccountName
     foreach ($access in $root_file_acl)
     {
@@ -1317,7 +1419,7 @@ function Get-ACLPathFileACL
             -Owner $owner `
             -Access $access `
             -Inherited $Inherited
-		Write-Verbose -Message "Get-ACLPathFileACL: Root ACL for $Path owner $Owner`n$(Convert-AccessToString($Access))"
+        Write-Verbose -Message "Get-ACLPathFileACL: Root ACL for $Path owner $Owner`n$(Convert-AccessToString($Access))"
     } # Foreach
     if ($Recurse)
     {
@@ -1330,32 +1432,32 @@ function Get-ACLPathFileACL
             $node_file_acls = $node_file_acls | Where-Object -Property IsInherited -eq $False    
         }
         $LastPath = ''
-		foreach ($access in $node_file_acls)
+        foreach ($access in $node_file_acls)
         {
-			# Write each non-inherited ACL from the file/folder into the array of ACL's 
-	        $Path = $access.FullName
-			if ($LastPath -ne $Path)
+            # Write each non-inherited ACL from the file/folder into the array of ACL's 
+            $Path = $access.FullName
+            if ($LastPath -ne $Path)
             {
-				try
+                try
                 {
-					[Boolean]$IsFolder = ((Get-Item -Path $Path -ErrorAction "Stop") -is [System.IO.DirectoryInfo])
-				}
+                    [Boolean]$IsFolder = ((Get-Item -Path $Path -ErrorAction 'Stop') -is [System.IO.DirectoryInfo])
+                }
                 catch
                 {
-					Write-Warning "Get-ACLPathFileACL: Access Denied to $Path"
-					$IsFolder = $True
-				}
-				if ($IsFolder)
+                    Write-Warning "Get-ACLPathFileACL: Access Denied to $Path"
+                    $IsFolder = $True
+                }
+                if ($IsFolder)
                 {
-					$type = [ACLReportTools.PermissionTypeEnum]::Folder
-				}
+                    $type = [ACLReportTools.PermissionTypeEnum]::Folder
+                }
                 else
                 {
-					$type = [ACLReportTools.PermissionTypeEnum]::File
-				}
-				[String] $Owner = (Get-NTFSOwner -Path $Path).Owner.AccountName
-				$LastPath = $Path
-			}            
+                    $type = [ACLReportTools.PermissionTypeEnum]::File
+                }
+                [String] $Owner = (Get-NTFSOwner -Path $Path).Owner.AccountName
+                $LastPath = $Path
+            }            
             if ($IncludeInherited -and $access.IsInherited)
             {
                 $Inherited = "Inherited from $($access.InheritedFrom)" 
@@ -1364,14 +1466,14 @@ function Get-ACLPathFileACL
             {
                 $Inherited = 'Not-inherited'                    
             }
-			$file_acls += New-PermissionObject `
+            $file_acls += New-PermissionObject `
                 -ComputerName $ComputerName `
                 -Type $type `
                 -Path $Path `
                 -Owner $Owner `
                 -Access $Access `
                 -Inherited $Inherited
-			Write-Verbose -Message "Get-ACLPathFileACL: $Inherited ACL for $Path owner $Owner`n$(Convert-AccessToString($Access))"
+            Write-Verbose -Message "Get-ACLPathFileACL: $Inherited ACL for $Path owner $Owner`n$(Convert-AccessToString($Access))"
         } # Foreach
     } # If
     return $file_acls
@@ -1380,32 +1482,32 @@ function Get-ACLPathFileACL
 
 <#
 .SYNOPSIS
-	Export the ACL Permissions objects that are provided as a file.
+    Export the ACL Permissions objects that are provided as a file.
 
 .DESCRIPTION 
-	This Cmdlet will save what ever ACLs (ACLReportTools.Permission) to a file.
+    This Cmdlet will save what ever ACLs (ACLReportTools.Permission) to a file.
      
 .PARAMETER Path
-	This is the path to the ACL Permissions file output file. This parameter is required.
+    This is the path to the ACL Permissions file output file. This parameter is required.
 
 .PARAMETER InputObject
-	Specifies the ACL Permissions objects to export to the file. Enter a variable that contains the objects or type a command or expression that gets the objects. You can also pipe ACLReportTools.Permission objects to cmdlet.
+    Specifies the ACL Permissions objects to export to the file. Enter a variable that contains the objects or type a command or expression that gets the objects. You can also pipe ACLReportTools.Permission objects to cmdlet.
 
 .PARAMETER Force
-	Causes the file to be overwritten if it exists.
+    Causes the file to be overwritten if it exists.
 
 .EXAMPLE 
-	New-ACLPathFileReport -Path e:\Shares | Export-ACLPermission -Path C:\ACLReports\server01.acl
-	Creates a new ACL Permission report for e:\Shares and saves it to the file C:\ACLReports\server01.acl.
+    New-ACLPathFileReport -Path e:\Shares | Export-ACLPermission -Path C:\ACLReports\server01.acl
+    Creates a new ACL Permission report for e:\Shares and saves it to the file C:\ACLReports\server01.acl.
 
 .EXAMPLE 
-	Export-ACLPermission -Path C:\ACLReports\server01.acl -InputObject $Acls
-	Saves the ACL Permissions in the $Acls variable to the file C:\ACLReports\server01.acl.
+    Export-ACLPermission -Path C:\ACLReports\server01.acl -InputObject $Acls
+    Saves the ACL Permissions in the $Acls variable to the file C:\ACLReports\server01.acl.
 
 .EXAMPLE 
-	Export-ACLPermission -Path C:\ACLReports\server01.acl -InputObject (Get-ACLShare -ComputerName SERVER01 | Get-ACLShareFileACL -Recurse)
-	Saves the file ACLs for all shares on the compuer SERVER01 to the file C:\ACLReports\server01.acl.
-#>    
+    Export-ACLPermission -Path C:\ACLReports\server01.acl -InputObject (Get-ACLShare -ComputerName SERVER01 | Get-ACLShareFileACL -Recurse)
+    Saves the file ACLs for all shares on the compuer SERVER01 to the file C:\ACLReports\server01.acl.
+#>
 function Export-ACLPermission
 {
     [CmdLetBinding()]
@@ -1418,7 +1520,7 @@ function Export-ACLPermission
         [Parameter(Mandatory=$true,
             ValueFromPipeline=$true,
             ValueFromPipelineByPropertyName=$true)]
-        [ValidateScript({$_.GetType().FullName -ne 'ACLReportTools.Permission[]' })]
+        [ValidateScript({ $_.GetType().FullName -ne 'ACLReportTools.Permission[]' })]
         [ACLReportTools.Permission[]] $InputObject,
 
         [Switch]$Force
@@ -1456,23 +1558,23 @@ function Export-ACLPermission
 
 <#
 .SYNOPSIS
-	Export the ACL Difference Objects that are provided as a file.
+    Export the ACL Difference Objects that are provided as a file.
 
 .DESCRIPTION 
-	This Cmdlet will export an array of provided Permission Difference [ACLReportTools.PermissionDiff] records to a file.
+    This Cmdlet will export an array of provided Permission Difference [ACLReportTools.PermissionDiff] records to a file.
      
 .PARAMETER Path
-	This is the path to the ACL Permission Diff file. This parameter is required.
+    This is the path to the ACL Permission Diff file. This parameter is required.
 
 .PARAMETER InputObject
-	Specifies the Permissions objects to export to th file. Enter a variable that contains the objects or type a command or expression that gets the objects. You can also pipe ACLReportTools.PermissionDiff objects to this cmdlet.
+    Specifies the Permissions objects to export to th file. Enter a variable that contains the objects or type a command or expression that gets the objects. You can also pipe ACLReportTools.PermissionDiff objects to this cmdlet.
 
 .PARAMETER Force
-	Causes the file to be overwritten if it exists.
+    Causes the file to be overwritten if it exists.
 
 .EXAMPLE 
-	Export-ACLPermissionDiff -Path C:\ACLReports\server01.acr -InputObject $DiffReport
-	Saves the ACL Difference objects in the $DiffReport variable to the file C:\ACLReports\server01.acr.  If the file exists it will be overwritten if the Force switch is set.
+    Export-ACLPermissionDiff -Path C:\ACLReports\server01.acr -InputObject $DiffReport
+    Saves the ACL Difference objects in the $DiffReport variable to the file C:\ACLReports\server01.acr.  If the file exists it will be overwritten if the Force switch is set.
 #>    
 function Export-ACLPermissionDiff
 {
@@ -1524,17 +1626,17 @@ function Export-ACLPermissionDiff
 
 <#
 .SYNOPSIS
-	Import the a File containing serialized ACL Permission objects that are in a file back into the pipeline.
+    Import the a File containing serialized ACL Permission objects that are in a file back into the pipeline.
 
 .DESCRIPTION
-	This Cmdlet will load all the ACLs (ACLReportTools.Permission) records from a specified file.
+    This Cmdlet will load all the ACLs (ACLReportTools.Permission) records from a specified file.
      
 .PARAMETER Path
-	This is the path to the file containing ACL Permission objects. This parameter is required.
+    This is the path to the file containing ACL Permission objects. This parameter is required.
 
 .EXAMPLE 
-	Import-ACLPermission -Path C:\ACLReports\server01.acl
-	Loads the ACLs in the file C:\ACLReports\server01.acl.
+    Import-ACLPermission -Path C:\ACLReports\server01.acl
+    Loads the ACLs in the file C:\ACLReports\server01.acl.
 #>    
 function Import-ACLPermission
 {
@@ -1566,18 +1668,18 @@ function Import-ACLPermission
 
 <#
 .SYNOPSIS
-	Import the a File containing serialized ACL Permission Diff objects that are in a file back into the pipeline.
+    Import the a File containing serialized ACL Permission Diff objects that are in a file back into the pipeline.
 
 .DESCRIPTION
-	This Cmdlet will load all the ACLs (ACLReportTools.PermissionDiff) records from a specified file.
-     
+    This Cmdlet will load all the ACLs (ACLReportTools.PermissionDiff) records from a specified file.
+
 .PARAMETER Path
-	This is the path to the file containing ACL Permission Diff objects. This parameter is required.
+    This is the path to the file containing ACL Permission Diff objects. This parameter is required.
 
 .EXAMPLE 
-	Import-ACLPermissionDiff -Path C:\ACLReports\server01.acr
-	Loads the ACL Permission Diff objects in the file C:\ACLReports\server01.acr.
-#>    
+    Import-ACLPermissionDiff -Path C:\ACLReports\server01.acr
+    Loads the ACL Permission Diff objects in the file C:\ACLReports\server01.acr.
+#>
 function Import-ACLPermissionDiff
 {
     [CmdLetBinding()]
@@ -1608,27 +1710,27 @@ function Import-ACLPermissionDiff
 
 <#
 .SYNOPSIS
-	Export the ACL Difference Objects that are provided as an HTML file.
+    Export the ACL Difference Objects that are provided as an HTML file.
 
 .DESCRIPTION 
-	This Cmdlet will export an array of provided Permission Difference [ACLReportTools.PermissionDiff] records to an HTML file for easy viewing and reporting.
-     
+    This Cmdlet will export an array of provided Permission Difference [ACLReportTools.PermissionDiff] records to an HTML file for easy viewing and reporting.
+
 .PARAMETER Path
-	This is the path to the HTML output file. This parameter is required.
+    This is the path to the HTML output file. This parameter is required.
 
 .PARAMETER InputObject
-	Specifies the Permissions DIff objects to export to the as HTML. Enter a variable that contains the objects or type a command or expression that gets the objects. You can also pipe ACLReportTools.PermissionDiff objects to this cmdlet.
+    Specifies the Permissions DIff objects to export to the as HTML. Enter a variable that contains the objects or type a command or expression that gets the objects. You can also pipe ACLReportTools.PermissionDiff objects to this cmdlet.
 
 .PARAMETER Force
-	Causes the file to be overwritten if it exists.
+    Causes the file to be overwritten if it exists.
 
 .PARAMETER Title
-	Optional Title text to write into the report.
+    Optional Title text to write into the report.
 
 .EXAMPLE 
-	Compare-ACLReports -Baseline (Import-ACLReports -Path c:\ACLReports\server01.acl) -With (Get-ACLReport -ComputerName Server01) | Export-ACLPermissionDiffHTML -Path C:\ACLReports\server01.htm
+    Compare-ACLReports -Baseline (Import-ACLReports -Path c:\ACLReports\server01.acl) -With (Get-ACLReport -ComputerName Server01) | Export-ACLPermissionDiffHTML -Path C:\ACLReports\server01.htm
 
-	Performs a comparison using the Baseline file c:\ACLReports\Server01.acl and the shares on Server01 and outputs ACL Difference Report as an HTML file.
+    Performs a comparison using the Baseline file c:\ACLReports\Server01.acl and the shares on Server01 and outputs ACL Difference Report as an HTML file.
 #>    
 function Export-ACLPermissionDiffHTML
 {
@@ -1647,7 +1749,7 @@ function Export-ACLPermissionDiffHTML
 
         [Switch]$Force,
 
-		[String]$Title = 'ACL Difference Report'
+        [String]$Title = 'ACL Difference Report'
     ) # param
 
     begin
@@ -1657,46 +1759,46 @@ function Export-ACLPermissionDiffHTML
             Write-Error "The file $Path already exists. Use Force to overwrite it."
             return
         }
-		Set-Content -Path $Path -Value ( CreateHTMLReportHeader -Title $Title ) -Force 
-		[String]$LastComputer = ''
-		[String]$LastShare = ''
+        Set-Content -Path $Path -Value ( CreateHTMLReportHeader -Title $Title ) -Force 
+        [String]$LastComputer = ''
+        [String]$LastShare = ''
     } # Begin
     process
     {
         foreach ($PermissionDiff in $InputObject)
         {
-			if (($ComputerName -ne '') -and ($PermissionDiff.ComputerName -ne $LastComputer))
+            if (($ComputerName -ne '') -and ($PermissionDiff.ComputerName -ne $LastComputer))
             {
-				$LastComputer = $PermissionDiff.ComputerName
-				Add-Content -Path $Path -Value ( CreateHTMLComputerNameLine -ComputerName $PermissionDiff.ComputerName ) -Force 			
-			}
-			if (($PermissionDiff.Share -ne '') -and ($PermissionDiff.Share -ne $LastShare ))
+                $LastComputer = $PermissionDiff.ComputerName
+                Add-Content -Path $Path -Value ( CreateHTMLComputerNameLine -ComputerName $PermissionDiff.ComputerName ) -Force 			
+            }
+            if (($PermissionDiff.Share -ne '') -and ($PermissionDiff.Share -ne $LastShare ))
             {
-				$LastShare = $PermissionDiff.Share
-				Add-Content -Path $Path -Value ( CreateHTMLShareNameLine -ShareName $PermissionDiff.Share ) -Force 			
-			}
-			Add-Content -Path $Path -Value ( CreateHTMLPermissionDiffLine -PermissionDiff $PermissionDiff ) -Force 
+                $LastShare = $PermissionDiff.Share
+                Add-Content -Path $Path -Value ( CreateHTMLShareNameLine -ShareName $PermissionDiff.Share ) -Force 			
+            }
+            Add-Content -Path $Path -Value ( CreateHTMLPermissionDiffLine -PermissionDiff $PermissionDiff ) -Force 
         } # Foreach
     } # Process
     end
     {
-		Add-Content -Path $Path -Value ( CreateHTMLReportFooter ) -Force 
+        Add-Content -Path $Path -Value ( CreateHTMLReportFooter ) -Force 
     } # End
 } # Function Export-ACLPermissionDiffHTML
 
 
-##########################################################################################################################################
+####################################################################################################
 # Hidden Support CmdLets
-##########################################################################################################################################
+####################################################################################################
 
 
 <#
 .SYNOPSIS
-	This function creates the a support module containing classes and enums via reflection. It also checks for and loads the
-	File System Security PowerShell Module Module (https://gallery.technet.microsoft.com/scriptcenter/1abd77a5-9c0b-4a2b-acef-90dbb2b84e85)
+    This function creates the a support module containing classes and enums via reflection. It also checks for and loads the
+    File System Security PowerShell Module Module (https://gallery.technet.microsoft.com/scriptcenter/1abd77a5-9c0b-4a2b-acef-90dbb2b84e85)
 
 .DESCRIPTION 
-	This function creates a .net dynamic module via reflection and adds classes and enums to it that are then used by other functions in this module.
+    This function creates a .net dynamic module via reflection and adds classes and enums to it that are then used by other functions in this module.
 #>
 function Initialize-Module
 {
@@ -1706,21 +1808,24 @@ function Initialize-Module
     ) # Param
 
     # Do we need to install the NTFSSecurity Module?
-    if ( @( Get-Module -Name NTFSSecurity -ListAvailable ).Count -eq 0)
+    $SupportInstall = (@(Get-Command -Name Install-Module -ErrorAction SilentlyContinue).Count -gt 0)
+    $NTFSSecurityModules = @(Get-Module -Name NTFSSecurity -ListAvailable)
+    
+    if ( @($NTFSSecurityModules | Where-Object -Property Version -gt 4.0.0).Count -eq 0)
     {
-		try
+        try
         {
-            Write-Verbose -Message "NTFSSecrity Module needs to be installed."
+            Write-Verbose -Message 'NTFSSecrity Module needs to be installed.'
             Get-PackageProvider -Name NuGet -ForceBootstrap -Force
             Install-Module -Name NTFSSecurity -MinimumVersion 4.0.0 -Force 
-            Write-Verbose -Message "NTFSSecrity Module was installed."
+            Write-Verbose -Message 'NTFSSecrity Module was installed.'
         }
         catch
         {
-            Throw 'NTFSSecurity Module is not available and could not be installed automatically.  Please download it from https://gallery.technet.microsoft.com/scriptcenter/1abd77a5-9c0b-4a2b-acef-90dbb2b84e85'
+            Throw 'NTFSSecurity Module v4.0.0 or greater is not available and could not be installed automatically.  Please download it from https://gallery.technet.microsoft.com/scriptcenter/1abd77a5-9c0b-4a2b-acef-90dbb2b84e85'
         }
-	} # If
-	Import-Module -Name NTFSSecurity
+    } # If
+    Import-Module -Name NTFSSecurity -MinimumVersion 4.0.0
 
     $Domain = [AppDomain]::CurrentDomain
 
@@ -1791,10 +1896,10 @@ function Initialize-Module
 
 <#
 .SYNOPSIS
-	This function creates an ACLReportTools.Share object and populates it.
+    This function creates an ACLReportTools.Share object and populates it.
 
 .DESCRIPTION 
-	This function creates an ACLReportTools.Share object from the class definition in the dynamic module ACLREportsModule and assigns the function parameters to the field values of the object.
+    This function creates an ACLReportTools.Share object from the class definition in the dynamic module ACLREportsModule and assigns the function parameters to the field values of the object.
 #>
 function New-ShareObject
 {
@@ -1819,10 +1924,10 @@ function New-ShareObject
 
 <#
 .SYNOPSIS
-	This function creates an ACLReportTools.Permission object and populates it.
+    This function creates an ACLReportTools.Permission object and populates it.
 
 .DESCRIPTION 
-	This function creates an ACLReportTools.Permission object from the class definition in the dynamic module ACLREportsModule and assigns the function parameters to the field values of the object.
+    This function creates an ACLReportTools.Permission object from the class definition in the dynamic module ACLREportsModule and assigns the function parameters to the field values of the object.
 #>
 function New-PermissionObject
 {
@@ -1865,10 +1970,10 @@ function New-PermissionObject
 
 <#
 .SYNOPSIS
-	This function creates an ACLReportTools.PermissionDiff object and populates it.
+    This function creates an ACLReportTools.PermissionDiff object and populates it.
 
 .DESCRIPTION 
-	This function creates an ACLReportTools.PermissionDiff object from the class definition in the dynamic module ACLREportsModule and assigns the function parameters to the field values of the object.
+    This function creates an ACLReportTools.PermissionDiff object from the class definition in the dynamic module ACLREportsModule and assigns the function parameters to the field values of the object.
 #>
 function New-PermissionDiffObject
 {
@@ -1937,7 +2042,7 @@ function Convert-FileSystemAppliesToString
             'ObjectInherit' { return 'Files only'; break }
         } # Switch
     } # If
-    return "Unknown"
+    return 'Unknown'
 } # function Convert-FileSystemAppliesToString
 
 
@@ -2007,7 +2112,7 @@ Function CreateHTMLComputerNameLine
         [Parameter(Mandatory=$true)]
         [String]$ComputerName
     ) # Param
-	return $Script:Html_ComputerName -f $ComputerName
+    return $Script:Html_ComputerName -f $ComputerName
 } # Function CreateHTMLComputerNameLine
 
 
@@ -2018,7 +2123,7 @@ Function CreateHTMLShareNameLine
         [Parameter(Mandatory=$true)]
         [String]$ShareName
     ) # Param
-	return $Script:Html_ShareName -f $ShareName
+    return $Script:Html_ShareName -f $ShareName
 } # Function CreateHTMLShareNameLine
 
 
@@ -2031,10 +2136,10 @@ Function CreateHTMLPermissionDiffLine
     ) # Param
 
     # This function takes a Permission Diff object and formats it as HTML for a report.
-	[string]$label = $PermissionDiff.Type.ToString()
-	[string]$class = $PermissionDiff.DiffType.ToString().ToLower() -replace " ",""
-	[string]$html = $PermissionDiff.Difference
-	return $Script:Html_DifferenceLine -f $Label,$Class,$Html
+    [string]$label = $PermissionDiff.Type.ToString()
+    [string]$class = $PermissionDiff.DiffType.ToString().ToLower() -replace ' ',''
+    [string]$html = $PermissionDiff.Difference
+    return $Script:Html_DifferenceLine -f $Label,$Class,$Html
 } # Function CreateHTMLPermissionDiffLine
 
 
@@ -2046,17 +2151,17 @@ Initialize-Module
 Export-ModuleMember -Function `
     New-ACLShareReport,`
     New-ACLPathFileReport, `
-	Import-ACLReport,`
+    Import-ACLReport,`
     Export-ACLReport,`
     Import-ACLDiffReport,`
     Export-ACLDiffReport,`
-	Compare-ACLReports,`
-	Get-ACLShare,`
-	Get-ACLShareACL,`
+    Compare-ACLReports,`
+    Get-ACLShare,`
+    Get-ACLShareACL,`
     Get-ACLPathFileACL,`
     Get-ACLShareFileACL,`
-	Import-ACLPermission,`
+    Import-ACLPermission,`
     Export-ACLPermission,`
     Import-ACLPermissionDiff,`
     Export-ACLPermissionDiff,`
-	Export-ACLPermissionDiffHTML
+    Export-ACLPermissionDiffHTML
